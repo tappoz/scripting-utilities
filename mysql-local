@@ -1,0 +1,38 @@
+#!/bin/bash
+
+####################
+# Action might be: #
+# - restart        #
+# - log            #
+# - status         #
+####################
+
+# This script is useful to me when I need to <restart> the mysql instance due to the 
+# changes I make on the my.cnf file.
+# It is also useful in order to track all the SQL queries (using the action <log>) 
+# if the following variables in the "my.cnf" are enabled
+
+# To set logging on go to: /etc/mysql/my.cnf
+# open it with sudo
+# then uncomment the 2 lines:
+# general_log_file        = /var/log/mysql/mysql.log
+# general_log             = 1
+
+
+action=`echo $1`
+password=`echo $2`
+
+if [ $action = "restart" ] 
+then
+   echo $password | sudo -S  /etc/init.d/mysql restart & 
+elif [ $action = "log" ] 
+then
+   tail -f /var/log/mysql/mysql.log 
+elif [ $action = "status" ]
+then
+   ps aux | grep mysql | awk '{ s = ""; for (i = 12; i <= NF; i++) s = s "\n\t\t\t\t\t" $i " "; print "\n\tPID: "$2"\tCOMMAND: "$11"\tPARAMETERS: "s }'
+else
+   echo ">>> You can use this command with either restart, log, and status. Nothing else for now..."
+fi
+
+
