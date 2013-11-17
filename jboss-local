@@ -1,0 +1,50 @@
+#!/bin/bash
+
+####################
+# Action might be: #
+# - start          #
+# - stop           #
+# - log            #
+# - status         #
+# - clean          #
+####################
+
+action=`echo $1`
+JBOSS_HOME=!!!SET THIS VALUE!!!
+JBOSS_INNER_PATH=!!!SET THIS VALUE!!!
+
+
+echo "you chose to $action your local jboss"
+
+if [ $action = "start" ] 
+then
+   rm -Rf $JBOSS_HOME/$JBOSS_INNER_PATH/tmp/
+   rm -Rf $JBOSS_HOME/$JBOSS_INNER_PATH/work/
+   rm -Rf $JBOSS_HOME/$JBOSS_INNER_PATH/data/
+   nohup $JBOSS_HOME/bin/run.sh -c custom1 &  
+   echo -e "\n\t\t\t STARTING THE LOG \n"
+   sleep 7s
+   tail -f $JBOSS_HOME/$JBOSS_INNER_PATH/log/server.log
+elif [ $action = "stop" ] 
+then
+   $JBOSS_HOME/bin/shutdown.sh -S
+   echo -e "\n\t\t\t STARTING THE LOG \n"
+   sleep 7s
+   tail -f $JBOSS_HOME/$JBOSS_INNER_PATH/log/server.log
+elif [ $action = "log" ] 
+then
+   tail -f $JBOSS_HOME/$JBOSS_INNER_PATH/log/server.log 
+elif [ $action = "status" ]
+then
+   # you want ALL the PIDs of java commands (JVM) with parameters related to the "jboss" keyword
+   # be aware that you might get also PIDs from configuration files with the word "jboss" in the file system path
+   ps aux | grep jboss | awk '{ s = ""; for (i = 12; i <= NF; i++) s = s "\n\t\t\t\t\t" $i " "; print "\n\tPID: "$2"\tCOMMAND: "$11"\tPARAMETERS: "s }'
+elif [ $action = "clean" ]
+then
+   rm -Rf $JBOSS_HOME/$JBOSS_INNER_PATH/tmp/
+   rm -Rf $JBOSS_HOME/$JBOSS_INNER_PATH/data/
+else
+   echo "You can use this command with either start, stop, log, status, clean. Nothing else for now..."
+fi
+
+
