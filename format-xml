@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# example of output:
+#
+#tappoz@my-laptop ~/bin $ format-xml '<ul> <li>ccc</li> </ul>'
+#<ul>
+#  <li>ccc</li>
+#</ul>
+#tappoz@my-laptop ~/bin $ 
+#
+# you need to have the "tidy" command installed
+
+xmlinput=`echo $1`
+
+echo $xmlinput | tidy -xml -i -q
+
+
