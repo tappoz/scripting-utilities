@@ -8,8 +8,11 @@ in the file system.
 
 #### Updating your `$PATH`
 On your home folder (`/home/YOUR_USER_NAME` or simpy `~`)  amend the file `.bashrc` file with something like this:
-    PATH=${HOME}/bin:${PATH}
+```sh
+PATH=${HOME}/bin:${PATH}
+```
 #### Making one of the scripts executable
 In order to be sure the scripts are executable you need to run the following command:
-    $ chmod +x <script-name>
-
+```shell
+$ chmod +x <script-name>
+```
