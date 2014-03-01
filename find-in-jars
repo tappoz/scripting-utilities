@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# this script helps in inspecting a bunch of Jar files (e.g. Jar libraries) when trying to 
+# manually resolve dependencies (e.g. preparing a Maven pom.xml file) looking for a Java class 
+# that might be in a lot of different Jar files
+#
+# the script works on the sub-tree of the file system from where it is called
+#
+#
+# the input parameter might be the class name only 
+# or otherwise something like:
+# org/aaa/bbb/ClassName
+# where the package is 'org/aaa/bbb'
+#
+
+
+JAVA_CLASS_NAME_TO_FIND=`echo $1`
+
+find . -name "*.jar" | while read JAR; do jar tvf $JAR | grep $JAVA_CLASS_NAME_TO_FIND && echo $JAR ; done 
+
+printf "\n\t\t...done with finding\n\n"
+
