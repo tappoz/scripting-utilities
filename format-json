@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# use it passing the input file and the output file as parameters e.g.:
+# $ format-json jsonInputFile.json jsonInputFile_FORMATTED.json
+#
+# you need python installed to get this script working
+
+JSON_INPUT_FILE=`echo $1`
+JSON_OUTPUT_FILE=$2
+
+cat $JSON_INPUT_FILE | python -mjson.tool > $JSON_OUTPUT_FILE
+
+
