@@ -1,0 +1,58 @@
+#!/usr/bin/awk -f
+
+# Use this script to convert a CSV file (comma separated value file) to a JSON file (JavaScript Object Notation file).
+# This script works with gawk 4.0 (the GNU version of awk), see the FPAT usage for more details.
+#
+# A sample usage from the command line is:
+#
+# $ csv2json yourCsvFileToConvert.csv
+#
+# you might want to redirect the output to a file e.g.:
+#
+# $ csv2json yourCsvFileToConvert.csv > yourJsonFileComingFromTheCsvFile.json
+
+# EXAMPLE (note the fields wrapped with double quotes containing commas themselves, as in the fourth record)
+#
+# $ cat testCsv.csv 
+# col1,col2,col3,col4
+# aaa,bbb,ccc,ddd
+# "aaa",bbb,"ccc",ddd
+# aaa,"bb1,bb2",ccc,ddd
+# xxx,yyy,www,zzz
+# 
+# $ csv2json testCsv.csv 
+# {"col1":"aaa","col2":"bbb","col3":"ccc","col4":"ddd"}
+# {"col1":"aaa","col2":"bbb","col3":"ccc","col4":"ddd"}
+# {"col1":"aaa","col2":"bb1,bb2","col3":"ccc","col4":"ddd"}
+# {"col1":"xxx","col2":"yyy","col3":"www","col4":"zzz"}
+# {}
+# $ 
+
+BEGIN { 
+	FPAT="([^,]*)|(\"([^\"]|\"\")+\"[^,]*)" # http://www.gnu.org/software/gawk/manual/html_node/Splitting-By-Content.html
+	ESCAPE_DOUBLE_QUOTING="\""
+}
+
+# assuming the first record containing the name of the variables, using them as object property names
+NR == 1 { 
+	for ( i = 1 ; i <= NF ; i++ ) {
+		variable_names[i] = $i                  # retain the column headers
+		gsub(" ", "_", variable_names[i])       # in place replacing blank spaces with underscores
+		gsub("[(].*[)]", "", variable_names[i]) # in place delete of stuff inside round brackets
+	} 
+}
+
+# after the first record we will find the data to convert
+NR > 1 { # if you want to stop after a given amount of lines, then use "&& NR < X" where X>1
+	JSON_OBJECT="{"
+	for(i=1; i<=NF; i++) { 
+		gsub("\"", "", $i)         # in place delete of double quotes (") in the content of the fields, if any
+		JSON_OBJECT=JSON_OBJECT ESCAPE_DOUBLE_QUOTING variable_names[i] ESCAPE_DOUBLE_QUOTING ":" ESCAPE_DOUBLE_QUOTING $i ESCAPE_DOUBLE_QUOTING
+		if(i!=NF) {
+			# we want to add a comma between "key/value" pairs, but not after the last pair
+			JSON_OBJECT=JSON_OBJECT ","
+		}
+	}
+	JSON_OBJECT=JSON_OBJECT "}"
+	print JSON_OBJECT
+}
