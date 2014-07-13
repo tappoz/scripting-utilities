@@ -1,0 +1,75 @@
+#!/bin/bash
+
+####################
+# Usage:           #
+# - start          #
+# - stop           #
+# - restart        #
+# - log            #
+# - status         #
+####################
+
+# http://stackoverflow.com/questions/21724910/tomcat-start-and-stop-using-shell-script
+# https://github.com/tappoz/scripting-utilities/blob/master/jboss-local
+
+
+export BASE=~/Development/servers/apache-tomcat-7.0.42/bin
+TOMCAT_INSTANCE=apache-tomcat-7.0.42
+
+print_status() {
+	if [ `ps auxwwww|grep $TOMCAT_INSTANCE|grep -v grep|wc -l` -gt 0 ]
+		then
+			echo Tomcat is running.
+	else
+		echo Tomcat is not running.
+			fi
+}
+
+case "$1" in
+start)
+
+if [ `ps auxwwww|grep $TOMCAT_INSTANCE|grep -v grep|wc -l` -gt 0 ]
+then
+echo Tomcat seems to be running. Use the restart option.
+else
+$BASE/startup.sh 2>&1 > /dev/null
+fi
+print_status
+;;
+stop)
+$BASE/shutdown.sh 2>&1 > /dev/null
+if [ `ps auxwwww|grep $TOMCAT_INSTANCE|grep -v grep|wc -l` -gt 0 ]
+then
+for pid in `ps auxwww|grep $TOMCAT_INSTANCE|grep -v grep|tr -s ' '|cut -d ' ' -f2`
+do
+kill -9 $pid 2>&1 > /dev/null
+done
+fi
+print_status
+;;
+restart)
+
+if [ `ps auxwwww|grep $TOMCAT_INSTANCE|grep -v grep|wc -l` -gt 0 ]
+then
+for pid in `ps auxwww|grep $TOMCAT_INSTANCE|grep -v grep|tr -s ' '|cut -d ' ' -f2`
+do
+kill -9 $pid 2>&1 > /dev/null
+done
+fi
+$BASE/startup.sh 2>&1 > /dev/null
+print_status
+;;
+log)
+reset
+tail -f $BASE/../logs/catalina.out
+;;
+status)
+ps auxwwww | grep "catalina\.base.*tomcat-7.0.42[ ]-D" | awk '{ print "\n\tPID:\t\t" $2  "\n\tBASE PATH:\t" $17 "\n\t" }' ; 
+print_status
+;;
+*)
+echo "Usage: tomcat start|stop|restart|log|status"
+esac
+
+
+
