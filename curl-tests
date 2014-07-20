@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# the idea here is to test a REST web service returning JSON objects
+#
+# there might be different "static parameters" used for all the cURL requests:
+# - URL paths (e.g. IP addresses or more complex paths),
+# - HTTP verbs (GET, POST),
+# - HTTP headers (e.g. for JSON objects, or XML, etc.)
+#
+# there might be different "dynamic parameters":
+# - query parameters
+#
+# once all the parameters are set, this script will loop on all the cURL requests, 
+# providing a JSON formatted output (python is helping in the formatting here...)
+
+# "static" parameters
+IP_URL="localhost"
+CUSTOM_HEADER_PARAM_1="XXX"
+CUSTOM_HEADER_PARAM_2="YYY"
+
+# "dynamic" parameters
+jsonParametersArray=(
+	''
+	'"dynamicParamOne" : ["foo bar"]'
+	'"dynamicParamOne" : "foo bar"'
+	'"dynamicParamOne" : {"detailOne":100.0,"detailTwo":"foo bar"}'
+)
+
+printf "\n\n\n ABOUT TO TEST THE CALLS! \n\n"
+
+#for param in "${jsonParametersArray[@]}"; do
+for i in "${!jsonParametersArray[@]}"; do 
+
+	printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	printf "\n\n\n\nLoop number $i of ${#jsonParametersArray[@]}"
+	printf "\nCurling param >>> %s <<< \n\n" "${jsonParametersArray[$i]}"
+	
+        curl -X POST -d '{"staticParamOne":"DUMMY VALUE 1","staticParamTwo":"DUMMY VALUE 2",'"${jsonParametersArray[$i]}"'}' --header "Content-Type:application/json" --header 'customHeaderParamOne:'$CUSTOM_HEADER_PARAM_1 --header 'customHeaderParamTwo:'$CUSTOM_HEADER_PARAM_1 http://$IP_URL:8080/path/to/the/request | python -m json.tool
+
+	printf "\n\n\n"
+	sleep 2;
+
+done
+
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+printf "\n\n\n DONE! \n\n"
