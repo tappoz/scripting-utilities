@@ -33,7 +33,7 @@ INPUT_KML_FILE=$1
 INPUT_FILENAME_WITHOUT_EXTENSION="${INPUT_KML_FILE%.*}"
 echo --- Processing input KML file ${INPUT_KML_FILE}
 
-findLayers="$(ogrinfo -ro -so ${INPUT_KML_FILE} | tail -n+3 | cut -d ':' -f2 | sed 's/^ //g')"
+findLayers="$(ogrinfo -ro -so ${INPUT_KML_FILE} | tail -n+3 | cut -d ':' -f2 | awk '{print $1}')"
 layers=$findLayers
 
 for layer in $layers
