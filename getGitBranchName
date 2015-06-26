@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+# this (basic) node.js script generates the name of a git / GitHub branch
+# starting from the string provided as a command line input
+
+var args = process.argv.slice(2);
+var branchName = 'feature/'.concat(args.join('-').toLowerCase())
+console.log('branchName:', branchName);
+
