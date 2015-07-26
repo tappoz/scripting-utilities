@@ -39,7 +39,7 @@ layers=$findLayers
 for layer in $layers
 do
   echo --- Layer: $layer
-  ogr2ogr -f "GeoJSON" "file_${layer}.json" doc.kml "${layer}"
+  ogr2ogr -f "GeoJSON" file_${layer}.json ${INPUT_KML_FILE} ${layer}
   echo '    Done with the GeoJSON'
   ogr2ogr -f "CSV" -lco "GEOMETRY=AS_XY" "file_${layer}.csv" "file_${layer}.json"
   echo '    Done with the CSV'
