@@ -4,6 +4,12 @@
 // starting from the string provided as a command line input
 
 var args = process.argv.slice(2);
-var branchName = 'feature/'.concat(args.join('-').toLowerCase())
+var cleanedArgs = args.map(function(element) {
+  cleanedElement = element.replace(/[^\w\s]|_/g, '-');
+  // console.log('original element:', element);
+  // console.log('cleaned element:', cleanedElement);
+  return cleanedElement;
+});
+var branchName = 'feature/'.concat(cleanedArgs.join('-').toLowerCase())
 console.log('branchName:', branchName);
 
