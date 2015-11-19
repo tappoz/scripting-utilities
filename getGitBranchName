@@ -3,13 +3,31 @@
 // this (basic) node.js script generates the name of a git / GitHub branch
 // starting from the string provided as a command line input
 
+// the input parameters are:
+// - type of branch e.g. `feature`, `fix`
+// - title of the branch
+// - task number
+
 var args = process.argv.slice(2);
+
 var cleanedArgs = args.map(function(element) {
   cleanedElement = element.replace(/[^\w\s]|_/g, '-');
   // console.log('original element:', element);
   // console.log('cleaned element:', cleanedElement);
   return cleanedElement;
 });
-var branchName = 'feature/'.concat(cleanedArgs.join('-').toLowerCase())
-console.log('branchName:', branchName);
 
+// the type of branch (`feature`, `fix` etc)
+var typeOfBranch = cleanedArgs[0];
+// avoiding the first element (`feature`, `fix` etc) and the last element (task number)
+var titleArgs = cleanedArgs.slice(1, cleanedArgs.length - 1);
+var titleArgsJoined = titleArgs.join('-').toLowerCase();
+var titleArgsJoinedShort = titleArgsJoined.substring(0,29); // title to max 30 characters
+// the task number
+var taskNumber = cleanedArgs[cleanedArgs.length - 1];
+
+var branchName = typeOfBranch + '/' + titleArgsJoined + '-' + taskNumber;
+console.log('branch name:', branchName);
+
+var branchNameShort = typeOfBranch + '/' + titleArgsJoinedShort + '-' + taskNumber;
+console.log('branch name short:', branchNameShort);
