@@ -2,7 +2,7 @@ Scripting utilities
 ===================
 
 This project gathers all the scripts I found useful recalling from the command line for my daily tasks.
-They might be `bash` scripts, `python` scripts, or even a `javascript` regarding MongoDB.
+They might be `bash` / `awk` scripts, `python` scripts, or even `javascript` / `Node.js`.
 
 I usually save these scripts in my home bin folder (`~/bin`) making sure that folder is in the `$PATH` so then I can recall these scripts from every folder 
 in the file system.
