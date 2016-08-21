@@ -109,10 +109,10 @@ def main():
     quoting=csv.QUOTE_NONNUMERIC
   )
   csv_writer.writeheader()
-  for l_idx in range(ds_kml.GetLayerCount()-1):
+  for l_idx in range(ds_kml.GetLayerCount()):
     curr_layer = ds_kml.GetLayerByIndex(l_idx)
     print 'Processing layer %i: "%s", with %i features' % (l_idx, curr_layer.GetName(), curr_layer.GetFeatureCount())
-    for feat_idx in range(curr_layer.GetFeatureCount()-1):
+    for feat_idx in range(curr_layer.GetFeatureCount()):
       curr_feature = curr_layer.GetFeature(feat_idx)
       curr_item = get_point_details(curr_feature)
       curr_item['category'] = curr_layer.GetName()
