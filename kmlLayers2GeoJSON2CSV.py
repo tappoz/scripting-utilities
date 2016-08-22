@@ -9,6 +9,13 @@
 # $ sudo apt-get install libgdal1h
 # $ sudo apt-get install libgdal1-dev
 # ```
+#
+# On Mac OSX, using `homebrew`:
+# ```
+# $ brew install gdal
+# ```
+# (the previous command will also install python 2 support for GDAL, 
+# so no need to run `pip install` as below if working on Mac OSX)
 # 
 # then check everything is all right:
 # ```
