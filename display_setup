@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# this is used with 2 screens, 1 laptop, debian 9 (stretch)
+# to check the details about the plugged-in screens and the laptop screen:
+# `xrandr -q`
+
+xrandr --output eDP-1 --mode 1920x1080 -r 75.0 --brightness 0.8
+xrandr --output DP-1 --mode 1920x1080 -r 75.02
+xrandr --output eDP-1 --below DP-1
+
