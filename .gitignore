@@ -3,4 +3,6 @@
 # from 'finding-rpi_SAMPLE_.conf'
 finding-rpi.conf
 
-
+# CSV file for the browser script
+# renamed from 'open_browser_tabs_SAMPLE_.csv'
+open_browser_tabs.csv

@@ -1,16 +1,15 @@
 #!/usr/bin/env python2
 
+import sys
 import logging
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-logger = logging.getLogger()
-
-urls = [
-  'https://www.google.com',
-  'https://stackoverflow.com',
-  'https://en.wikipedia.org/wiki/Main_Page',
-]
+def load_urls(urls_path):
+  with open(urls_path) as f:
+    urls = f.readlines()
+    urls = [x.strip().replace('\n', '') for x in urls]
+  return urls
 
 def get_chrome_options():
   chrome_options = webdriver.ChromeOptions()
@@ -45,5 +44,13 @@ def open_tabs(driver, urls):
   for idx, url in enumerate(urls):
   	open_tab(driver, idx, url)
 
-global_driver = get_global_driver()
-open_tabs(global_driver, urls)
+if __name__ == '__main__':
+  # Usage: `./open_browser_tabs.py urls.csv`
+  # relative path to the CSV containing the URLs
+  # - sys.argv[0]: "./open_browser_tabs.py"
+  # - sys.argv[1]: "urls.csv"
+  urls_path = sys.argv[1]
+  logger = logging.getLogger()
+  urls = load_urls(urls_path)
+  global_driver = get_global_driver()
+  open_tabs(global_driver, urls)
