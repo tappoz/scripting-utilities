@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 
+import os
 import sys
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
@@ -13,6 +15,8 @@ def load_urls(urls_path):
 def get_chrome_options():
   chrome_options = webdriver.ChromeOptions()
   chrome_options.add_argument("--incognito")
+  chrome_options.add_argument("user-data-dir={}/.config/chromium".format(os.environ['HOME']))
+  chrome_options.add_argument("disable-infobars")
   return chrome_options
 
 def get_global_driver():
