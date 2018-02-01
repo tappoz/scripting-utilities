@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# On Debian Stretch:
+# sudo apt-get install pandoc
+# sudo apt-get install texlive
+
+INPUT_MD_DIRECTORY=$1
+OUTPUT_PDF_FILE_PATH=$2
+
+# Inspired by:
+# https://stackoverflow.com/questions/29096785/makefile-for-compiling-markdown-files-to-a-single-pdf
+#
+# Gotchas:
+# make sure each markdown file starts with a new line, so the PDF formatting is
+# more likely to be correct (e.g. a title is rendered in bold, instead of
+# being attached to the last paragraph of the previous markdown file)
+cat $INPUT_MD_DIRECTORY/*md | pandoc \
+                                --variable geometry:a4paper \
+                                --number-sections \
+                                --toc \
+                                -f markdown \
+                                -s \
+                                -o $OUTPUT_PDF_FILE_PATH
