@@ -21,3 +21,9 @@ cat $INPUT_MD_DIRECTORY/*md | pandoc \
                                 -f markdown \
                                 -s \
                                 -o $OUTPUT_PDF_FILE_PATH
+
+# TODO for PDF slides you need beamer
+# sudo apt-get install texlive-latex-extra
+#
+# pandoc *.md -t beamer -o stuff.pdf
+# pandoc *.md -t slidy -o stuff.html --self-contained --slide-level 2
