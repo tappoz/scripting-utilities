@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 # GDAL/OGR setup
 # ==============
@@ -83,7 +83,7 @@ def parse_input_parameters():
 
   args = vars(parser.parse_args())
 
-  print 'Found args:', args
+  print('Found args:', args)
   return args
 
 def get_point_details(curr_feature):
@@ -118,7 +118,7 @@ def main():
   csv_writer.writeheader()
   for l_idx in range(ds_kml.GetLayerCount()):
     curr_layer = ds_kml.GetLayerByIndex(l_idx)
-    print 'Processing layer %i: "%s", with %i features' % (l_idx, curr_layer.GetName(), curr_layer.GetFeatureCount())
+    print('Processing layer %i: "%s", with %i features' % (l_idx, curr_layer.GetName(), curr_layer.GetFeatureCount()))
     for feat_idx in range(curr_layer.GetFeatureCount()):
       curr_feature = curr_layer.GetFeature(feat_idx)
       curr_item = get_point_details(curr_feature)
