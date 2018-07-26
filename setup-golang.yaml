@@ -1,0 +1,33 @@
+---
+# ansible-playbook setup-golang.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+- name: Make sure Go is installed
+  hosts: localhost
+  sudo: yes
+  vars:
+    user_name: "{{ cli_input_username }}"
+  tasks:
+  - name: Download the tar file
+    get_url:
+      url: https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+      dest: /home/{{ user_name }}/src/go1.10.3.linux-amd64.tar.gz
+      checksum: sha256:fa1b0e45d3b647c252f51f5e1204aba049cde4af177ef9f2181f43004f901035
+  - name: Extract Go
+    unarchive:
+      src: /home/{{ user_name }}/src/go1.10.3.linux-amd64.tar.gz
+      dest: /usr/local/
+  # - name: Make sure Go is configured
+  #   # in ansible 2.3 this `destfile` becomes `path`
+  #   lineinfile: destfile=/home/{{ user_name }}/.bashrc line='{{ item.line }}' backup=yes state=present
+  #   with_items:
+  #     - { line: "export GOROOT=/usr/local/go" }
+  #     - { line: "export PATH=$PATH:/usr/local/go/bin" }
+  - name: Make sure Go is configured
+    blockinfile:
+      # in ansible 2.3 this `destfile` becomes `path`
+      destfile: /home/{{ user_name }}/.bashrc
+      backup: yes
+      block: |
+
+        # the Go configuration details
+        export GOROOT=/usr/local/go
+        export PATH=$PATH:/usr/local/go/bin
