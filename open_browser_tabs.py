@@ -9,6 +9,8 @@ import os
 import sys
 import subprocess
 
+# TODO opera --newwindow --newprivatetab google.com
+# http://www.opera.com/docs/switches/
 chromium_cmd_template = "chromium --incognito --new-window {} &"
 firefox_cmd_template = "firefox -private {} &"
 
