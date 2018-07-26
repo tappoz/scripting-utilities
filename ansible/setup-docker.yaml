@@ -1,0 +1,49 @@
+---
+# ansible-playbook setup-docker.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+- name: Make sure docker is installed and configured
+  hosts: localhost
+  sudo: yes
+  vars:
+    user_name: "{{ cli_input_username }}"
+  tasks:
+  - name: Update repositories cache
+    apt:
+      update_cache: yes
+  - name: Install a list of general utilities
+    apt: name={{item}} state=installed
+    with_items:
+      - git
+      - jq
+      - ipcalc
+  - name: Install a list of packages for docker
+    apt: name={{item}} state=installed
+    with_items:
+      - curl
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+      - python-pip
+  - name: Fetch the *Debian* GPG key for the docker repository
+    apt_key:
+      url: "https://download.docker.com/linux/$(lsb_release -is | tr [:upper:] [:lower:])/gpg"
+      state: present
+  - name: Add the docker repository to apt
+    command: bash -c 'add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr [:upper:] [:lower:]) $(lsb_release -cs) stable"'
+  - name: Update repositories cache (with the docker repo now)
+    apt:
+      update_cache: yes
+  - name: Install docker
+    apt: name=docker-ce=17.03.1* state=installed
+  - name: Install docker-compose
+    command: bash -c 'pip install docker-compose==1.9.0' # https://github.com/ansible/ansible/issues/20492
+  - name: Install docker-py
+    pip:
+      name: docker-py # this package is to be able to pull/run docker images
+      version: 1.10.6 # https://stackoverflow.com/questions/38181433/ansible-cannot-import-docker-py-even-though-it-is-installed
+  # the following group/user is to make sure the docker client does not need sudo
+  - group:
+      name: docker
+      state: present
+  - user:
+      name: {{user_name}}
+      group: docker
