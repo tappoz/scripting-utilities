@@ -1,0 +1,28 @@
+# reference docs on apt debian/ubuntu: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+#
+# after this notebook has been executed run `az --version` to make sure the command works
+---
+# ansible-playbook setup-azure-cli-2.0.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+- name: Make sure Azure CLI 2.0 is installed and configured
+  hosts: localhost
+  sudo: yes
+  vars:
+    user_name: "{{ cli_input_username }}"
+  tasks:
+  # curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - name: Fetch the *Debian* GPG key for the Microsoft (Azure CLI 2.0?) repository
+    apt_key:
+      url: "https://packages.microsoft.com/keys/microsoft.asc"
+      state: present
+  - name: Make sure the needed dependencies are installed
+    apt: name={{item}} state=installed
+    with_items:
+      - software-properties-common # to be used by `add-apt-repository`
+      - apt-transport-https        # to be used by `azure-cli`
+  - name: Add the Microsoft Azure CLI 2.0 repository to apt
+    command: bash -c 'add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main"'
+  - name: Update repositories cache (with the Azure CLI 2.0 repo now)
+    apt:
+      update_cache: yes
+  - name: Install Azure CLI 2.0
+    apt: name=azure-cli state=installed
