@@ -1,6 +1,7 @@
 # reference docs on apt debian/ubuntu: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
 #
 # after this notebook has been executed run `az --version` to make sure the command works
+# to login: `read -sp "Type the Azure username: " AZ_USER && echo "" && read -sp "Type the Azure password: " AZ_PASS && echo "" && echo && az login -u $AZ_USER -p $AZ_PASS`
 ---
 # ansible-playbook setup-azure-cli-2.0.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
 - name: Make sure Azure CLI 2.0 is installed and configured
@@ -18,6 +19,7 @@
     apt: name={{item}} state=installed
     with_items:
       - software-properties-common # to be used by `add-apt-repository`
+      - lsb-release
       - apt-transport-https        # to be used by `azure-cli`
   - name: Add the Microsoft Azure CLI 2.0 repository to apt
     command: bash -c 'add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main"'
