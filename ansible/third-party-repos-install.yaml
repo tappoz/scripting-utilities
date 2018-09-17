@@ -1,0 +1,63 @@
+---
+# ansible-playbook third-party-repos-install.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+- name: Install 3rd party software
+  hosts: localhost
+  sudo: yes
+  vars:
+    user_name: "{{ cli_input_username }}"
+  tasks:
+  # https://iridiumbrowser.de/downloads/debian
+  - name: Install Iridium browser
+    apt:
+      update_cache: yes
+    # wget -qO - https://downloads.iridiumbrowser.de/ubuntu/iridium-release-sign-01.pub|sudo apt-key add -
+  - apt_key:
+      url: "https://downloads.iridiumbrowser.de/ubuntu/iridium-release-sign-01.pub"
+      state: present
+    # https://stackoverflow.com/questions/40230184/how-to-do-multiline-shell-script-in-ansible#40230416
+  - shell:
+      cmd: |
+        cat <<EOF | sudo tee /etc/apt/sources.list.d/iridium-browser.list
+        deb [arch=amd64] https://downloads.iridiumbrowser.de/deb/ stable main
+        #deb-src https://downloads.iridiumbrowser.de/deb/ stable main
+        EOF
+  # sudo apt-get install apt-rdepends && apt-rdepends iridium-browser
+  # WIP, check this: https://github.com/iridium-browser/tracker/issues/222
+  - apt: name={{item}} state=installed
+    with_items:
+      - libasound2
+      - libatk-bridge2.0-0
+      - libatk1.0-0
+      - libatomic1
+      - libc6
+      - libcairo2
+      - libcups2
+      - libdbus-1-3
+      - libexpat1
+      - libfontconfig1
+      - libgcc1
+      - libgdk-pixbuf2.0-0
+      - libglib2.0-0
+      - libgtk-3-0
+      - libnspr4
+      - libnss3
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libstdc++6
+      - libx11-6
+      - libx11-xcb1
+      - libxcb1
+      - libxcomposite1
+      - libxcursor1
+      - libxdamage1
+      - libxext6
+      - libxfixes3
+      - libxi6
+      - libxrandr2
+      - libxrender1
+      - libxss1
+      - libxtst6
+      - xdg-utils
+  - apt:
+      update_cache: yes
+      name: iridium-browser
