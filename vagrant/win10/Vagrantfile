@@ -1,0 +1,58 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure("2") do |config|
+  # https://app.vagrantup.com/gusztavvargadr/boxes/w10e
+  # it should be around ~5GB
+  #
+  # The official Windows 10 box from Microsoft is outdated and
+  # does not work with WinRM connections:
+  # https://app.vagrantup.com/Microsoft/boxes/EdgeOnWindows10
+  config.vm.box = "gusztavvargadr/w10e"
+  config.vm.box_version = "1808.0.0"
+  # WinRM username/password should be vagrant/vagrant
+  # PyWinRM: https://github.com/diyan/pywinrm
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  config.vm.box_check_update = false
+
+  # https://stackoverflow.com/a/39759154/1264920
+  # https://www.vagrantup.com/docs/networking/private_network.html#dhcp
+  # WinRM connection details (check the output for `vagrant up` or `vagrant reload`):
+  # >>> import winrm
+  # >>> s = winrm.Session('127.0.0.1:55985', auth=('vagrant', 'vagrant'))
+  # >>> r = s.run_cmd('ipconfig', ['/all'])
+  # >>> r.std_out
+  # >>> r.std_err
+  # >>> r.status_code
+  config.vm.network "private_network", type: "dhcp"
+
+  # Make sure the VirtualBox Guest Additions are installed!
+  # (otherwise "mount: unknown filesystem type 'vboxsf'")
+  # `vagrant plugin install vagrant-vbguest`
+  # if there are errors due to dependencies mismatches,
+  # then install directly the deb package from the Vagrant website:
+  # `dpkg -i vagrant_2.1.1_x86_64.deb`
+  config.vm.synced_folder "data_to_mount", "C:\\tools\\mount\\data_to_mount",
+    id: "data_to_mount",
+    create: true
+
+  config.vm.provider "virtualbox" do |vb|
+    # To remove an existing VM
+    # Cf.: https://stackoverflow.com/a/44540290/1264920
+    # `VBoxManage list vms | awk '{print $2;}' | xargs -I vmid VBoxManage unregistervm --delete vmid`
+    vb.name = "win10_land"
+
+    vb.gui = true
+    vb.memory = "1024"
+  end
+
+  # The VM will have:
+  # - node.js (version 6.5.0 as the Azure Function Windows environment)
+  # - python/miniconda3
+  config.vm.provision "shell", path: "vm-win10_land-provision.ps1"
+end
