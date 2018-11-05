@@ -39,16 +39,10 @@ write-host "Install nodejs version 6.5.0... "
 cinst -y  nodejs --version 6.5.0 | Out-Null
 write-host "END Install nodejs version 6.5.0!"
 
-write-host "Install miniconda3 version 4.5.1... "
-cinst -y  miniconda3 --version 4.5.1 # --force # /D=%UserProfile%\Miniconda3 /AddToPath=1
-write-host "END Install miniconda3 version 4.5.1!"
-
-# TODO: perhaps a radical thing like: https://stackoverflow.com/a/50596035/1264920
-write-host "Configure miniconda3 for cygwin..."
-# $oldSysPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path
-# $newSysPath = $oldSysPath + ";C:\tools\miniconda3"
-# Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $newSysPath
-
-# alternative way to set the PATH... (not sure what Powershell is doing with this PATH thing...)
-$env:Path += ";C:\tools\miniconda3"
-write-host "END Configure miniconda3 for cygwin..."
+write-host "Install miniconda3 version 4.5.11... "
+# Cf. the docs: https://conda.io/docs/user-guide/install/windows.html
+# (also https://chocolatey.org/packages/miniconda3)
+# TODO make sure you sign out then sign in again of the running GUI to allow the PATH settings to become active
+# i.e. being able to call `python` and `conda` from the command line
+cinst -y  miniconda3 --version 4.5.11 --params="'/InstallationType=AllUsers /AddToPath=1 /RegisterPython=1 /D=C:\tools\miniconda3'"
+write-host "END Install miniconda3 version 4.5.11!"
