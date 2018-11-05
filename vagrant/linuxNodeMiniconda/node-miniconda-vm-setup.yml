@@ -1,0 +1,49 @@
+---
+# ansible-playbook node-miniconda-vm-setup.yml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+- name: Setup common tools (python/miniconda3, node8/nvm)
+  hosts: default
+  vars:
+    user_name: vagrant # TODO set default `vagrant` when this is not provided as an input via the CLI: "{{ cli_input_username }}"
+  remote_user: root
+  gather_facts: no
+  pre_tasks:
+    - name: 'Install python'
+      raw: sudo apt-get -y install python
+  tasks:
+  # - set_fact: user_name=vagrant
+  - name: Download Miniconda3 installer
+    become: yes
+    get_url:
+      url: https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh
+      dest: /tmp/Miniconda3-4.5.11-Linux-x86_64.sh
+      timeout: 120
+      checksum: md5:e1045ee415162f944b6aebfe560b8fee
+      mode: 0755
+  - name: Install Miniconda3
+    become: yes
+    command: /tmp/Miniconda3-4.5.11-Linux-x86_64.sh -b -p /home/{{ user_name }}/Conda
+    args:
+      creates: /home/{{ user_name }}/Conda
+  - name: Download nvm (node version manager)
+    become: yes
+    get_url:
+      url: https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh
+      dest: /tmp/install.sh
+  - name: Install nvm
+    command: /bin/bash /tmp/install.sh
+    args:
+      creates: /home/{{ user_name }}/.nvm/nvm.sh
+  - name: Install node 8
+    command: /bin/bash -c '. /home/{{ user_name }}/.nvm/nvm.sh && nvm install 8.12.0 && nvm alias default 8.12.0'
+    args:
+      creates: /home/{{ user_name }}/.nvm/versions/node
+  - name: Update .bashrc with Miniconda3 and NVM
+    blockinfile:
+      dest: /home/{{ user_name }}/.bashrc
+      block: |
+        ### BEGIN: CUSTOM DETAILS
+        export PATH="$HOME/Conda/bin:$PATH"
+        export NVM_DIR="${XDG_CONFIG_HOME/:-$HOME/.}nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        ### END: CUSTOM DETAILS
+      backup: yes
