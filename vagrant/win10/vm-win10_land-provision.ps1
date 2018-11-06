@@ -39,6 +39,13 @@ write-host "Install nodejs version 6.5.0... "
 cinst -y  nodejs --version 6.5.0 | Out-Null
 write-host "END Install nodejs version 6.5.0!"
 
+write-host "Install Microsoft Office 365... "
+# This gives Microsoft Excel to be used with libraries e.g. `xlwings`
+# to create or inject data into reports
+# TODO You need to *MANUALLY* sign in to get a valid license to use Microsoft Office
+cinst -y office365proplus
+write-host "END Install Microsoft Office 365... "
+
 write-host "Install miniconda3 version 4.5.11... "
 # Cf. the docs: https://conda.io/docs/user-guide/install/windows.html
 # (also https://chocolatey.org/packages/miniconda3)
