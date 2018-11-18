@@ -16,11 +16,16 @@ OUTPUT_PDF_FILE_PATH=$2
 # being attached to the last paragraph of the previous markdown file)
 cat $INPUT_MD_DIRECTORY/*md | pandoc \
                                 --variable geometry:a4paper \
+                                --latex-engine=xelatex \
                                 --number-sections \
                                 --toc \
                                 -f markdown \
                                 -s \
                                 -o $OUTPUT_PDF_FILE_PATH
+
+# For --latex-engine=xelatex: `sudo apt-get install texlive-xetex`
+# otherwise: `pandoc: xelatex not found. xelatex is needed for pdf output.`
+
 
 # TODO for PDF slides you need beamer
 # sudo apt-get install texlive-latex-extra
