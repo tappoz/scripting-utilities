@@ -25,15 +25,15 @@
       - python-pip
   - name: Fetch the *Debian* GPG key for the docker repository
     apt_key:
-      url: "https://download.docker.com/linux/$(lsb_release -is | tr [:upper:] [:lower:])/gpg"
+      url: "https://download.docker.com/linux/ubuntu/gpg"
       state: present
   - name: Add the docker repository to apt
-    command: bash -c 'add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr [:upper:] [:lower:]) $(lsb_release -cs) stable"'
+    command: bash -c 'add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"'
   - name: Update repositories cache (with the docker repo now)
     apt:
       update_cache: yes
   - name: Install docker
-    apt: name=docker-ce=17.03.1* state=installed
+    apt: name=docker-ce=18.* state=installed
   - name: Install docker-compose
     command: bash -c 'pip install docker-compose==1.9.0' # https://github.com/ansible/ansible/issues/20492
   - name: Install docker-py
@@ -45,5 +45,5 @@
       name: docker
       state: present
   - user:
-      name: {{user_name}}
+      name: "{{ user_name }}"
       group: docker

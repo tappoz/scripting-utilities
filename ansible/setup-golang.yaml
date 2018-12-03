@@ -31,8 +31,8 @@
       # in ansible 2.3 this `destfile` becomes `path`
       destfile: /home/{{ user_name }}/.bashrc
       backup: yes
+      marker: "# {mark} Golang config"
       block: |
-
         # the Go configuration details
         export GOROOT=/usr/local/go
         export PATH=$PATH:/usr/local/go/bin

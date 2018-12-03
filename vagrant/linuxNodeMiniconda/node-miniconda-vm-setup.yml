@@ -1,9 +1,10 @@
 ---
 # ansible-playbook node-miniconda-vm-setup.yml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+# ansible-playbook node-miniconda-vm-setup.yml -i localhost, -vvvv --ask-sudo-pass --extra-vars "cli_input_username=alessio" --connection=local
 - name: Setup common tools (python/miniconda3, node8/nvm)
-  hosts: default
+  hosts: all
   vars:
-    user_name: vagrant # TODO set default `vagrant` when this is not provided as an input via the CLI: "{{ cli_input_username }}"
+    user_name: "{{ cli_input_username }}"  # vagrant # TODO set default `vagrant` when this is not provided as an input via the CLI: "{{ cli_input_username }}"
   remote_user: root
   gather_facts: no
   pre_tasks:
@@ -40,10 +41,12 @@
   - name: Update .bashrc with Miniconda3 and NVM
     blockinfile:
       dest: /home/{{ user_name }}/.bashrc
+      marker: "# {mark} Miniconda (python) and Nvm (node version manager)"
       block: |
-        ### BEGIN: CUSTOM DETAILS
         export PATH="$HOME/Conda/bin:$PATH"
-        export NVM_DIR="${XDG_CONFIG_HOME/:-$HOME/.}nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        ### END: CUSTOM DETAILS
+        #export NVM_DIR="${XDG_CONFIG_HOME/:-$HOME/.}nvm"
+        #[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
       backup: yes
