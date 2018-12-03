@@ -1,11 +1,15 @@
 # reference: https://flight-manual.atom.io/getting-started/sections/installing-atom/#installing-atom-on-linux
 ---
-# ansible-playbook setup-atom-editor.yaml -i "localhost," -vvvv --ask-sudo-pass --extra-vars "cli_input_username=alessio" --connection=local
+# ansible-playbook setup-atom-editor.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
 - name: Make sure Atom Editor IDE is installed and configured
   hosts: all
-  sudo: yes
   vars:
     user_name: "{{ cli_input_username }}"
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
   tasks:
   # curl -sL https://packagecloud.io/AtomEditor/atom/gpgkey | sudo apt-key add -
   - name: Fetch the GPG key for the Atom Editor IDE repository
@@ -25,7 +29,7 @@
   - name: Install Atom Editor IDE
     apt: name=atom state=installed
   - name: Install Atom plugins
-    shell: | 
+    shell: |
       apm install joefitzgerald/go-plus
       apm install jagregory/language-docker
-    
+    become_user: "{{ cli_input_username }}"
