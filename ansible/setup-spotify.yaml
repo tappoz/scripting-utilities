@@ -1,0 +1,27 @@
+# reference: https://www.spotify.com/uk/download/linux/
+---
+# ansible-playbook setup-spotify.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
+- name: Make sure Spotify is installed
+  hosts: all
+  vars:
+    user_name: "{{ cli_input_username }}"
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
+  tasks:
+  # sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+  - name: Fetch the GPG key
+    apt_key:
+      keyserver: hkp://keyserver.ubuntu.com:80
+      id: 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+      state: present
+  # echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list
+  - name: Add the Spotify repository to apt
+    command: bash -c 'echo "deb http://repository.spotify.com stable non-free" > /etc/apt/sources.list.d/spotify.list'
+  - name: Update repositories cache (now with the Spotify repo)
+    apt:
+      update_cache: yes
+  - name: Install Spotify
+    apt: name=spotify-client state=installed
