@@ -1,0 +1,49 @@
+# reference: https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-tools?view=sql-server-2017#ubuntu
+---
+# ansible-playbook setup-ms-sql-server-drivers-utils.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
+- name: Make sure the SQL Server command-line tools are installed and configured
+  hosts: all
+  vars:
+    user_name: "{{ cli_input_username }}"
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
+  tasks:
+  # curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - name: Fetch the GPG key for the SQL Server command-line tools repository
+    apt_key:
+      url: "https://packages.microsoft.com/keys/microsoft.asc"
+      state: present
+  - name: Make sure the needed dependencies are installed
+    apt: name={{item}} state=installed
+    with_items:
+      - unixodbc-dev
+  # curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+  - name: Add the SQL Server command-line tools repository to apt
+    command: bash -c 'curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/msprod.list'
+  - name: Update repositories cache (now with the SQL Server command-line tools repo)
+    apt:
+      update_cache: yes
+  - name: Install SQL Server command-line tools
+    apt: name={{item}} state=installed
+    with_items:
+      - msodbcsql17 # apt-cache depends mssql-tools
+      - mssql-tools
+    environment:
+      ACCEPT_EULA: "Y"
+  # sudo chown -R `whoami`:`whoami` /opt/mssql-tools
+  # - name: Make sure the executable are owned by the CLI user
+  #   file:
+  #     path: /opt/mssql-tools/bin
+  #     owner: "{{ cli_input_username }}"
+  #     group: "{{ cli_input_username }}"
+  #     recursive: yes
+  - name: Add SQL Server command-line tools to the PATH of the current user
+    shell: 'echo "\n\n# Microsoft tools for SQL Server\nexport PATH=/opt/mssql-tools/bin:\$PATH\n" >> $HOME/.bashrc'
+    become_user: "{{ cli_input_username }}"
+  # TODO to simulate another Linux machine using version 13
+  # RUN echo "[ODBC Driver 13 for SQL Server]" >> /etc/odbcinst.ini && \
+  #     echo "Description=Microsoft ODBC Driver 13 for SQL Server" >> /etc/odbcinst.ini && \
+  #     echo "Driver=/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.2.so.0.1" >> /etc/odbcinst.ini

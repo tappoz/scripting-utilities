@@ -35,4 +35,4 @@
       block: |
         # the Go configuration details
         export GOROOT=/usr/local/go
-        export PATH=$PATH:/usr/local/go/bin
+        export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin

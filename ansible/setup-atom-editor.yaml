@@ -30,6 +30,10 @@
     apt: name=atom state=installed
   - name: Install Atom plugins
     shell: |
+      apm install go-debug
+      apm install go-signature-statusbar
+      apm install atom-ide-ui
       apm install joefitzgerald/go-plus
       apm install jagregory/language-docker
     become_user: "{{ cli_input_username }}"
+    
