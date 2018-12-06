@@ -1,0 +1,36 @@
+# reference: https://learning.getpostman.com/docs/postman/launching_postman/installation_and_updates#linux-installation
+---
+# ansible-playbook setup-postman.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
+- name: Make sure Postman is installed
+  hosts: all
+  vars:
+    user_name: "{{ cli_input_username }}"
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
+  tasks:
+  # https://www.getpostman.com/download?platform=linux64
+  # command `wget --content-disposition https://dl.pstmn.io/download/latest/linux64`
+  # gives `Postman-linux-x64-6.5.3.tar.gz`
+  - name: Download the file
+    get_url:
+      url: https://dl.pstmn.io/download/latest/linux64
+      dest: /home/{{ cli_input_username }}/src/Postman-linux-x64-XXX.tar.gz
+  - name: Extract archive
+    unarchive:
+      src: /home/{{ cli_input_username }}/src/Postman-linux-x64-XXX.tar.gz
+      dest: /home/{{ cli_input_username }}/src/
+  - name: Create the Desktop launcher for Postman
+    copy:
+      dest: "/home/{{ cli_input_username }}/.local/share/applications/Postman.desktop"
+      content: |
+        [Desktop Entry]
+        Encoding=UTF-8
+        Name=Postman
+        Exec=/home/{{ cli_input_username }}/src/Postman/app/Postman %U
+        Icon=/home/{{ cli_input_username }}/src/Postman/app/resources/app/assets/icon.png
+        Terminal=false
+        Type=Application
+        Categories=Development;
