@@ -1,0 +1,32 @@
+# reference
+# - https://learn.hashicorp.com/terraform/getting-started/install.html
+# - https://www.terraform.io/downloads.html
+---
+# ansible-playbook setup-terraform.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
+- name: Make sure Terraform is installed
+  hosts: all
+  vars:
+    user_name: "{{ cli_input_username }}"
+    tf_version: 0.11.10
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
+  tasks:
+  - name: Download the Terraform checksum
+    get_url:
+      url: https://releases.hashicorp.com/terraform/{{ tf_version }}/terraform_{{ tf_version }}_SHA256SUMS
+      dest: /home/{{ user_name }}/src/terraform_{{ tf_version }}_SHA256SUMS
+  - name: Register the checksum value
+    shell: cat /home/{{ user_name }}/src/terraform_{{ tf_version }}_SHA256SUMS | grep linux_amd64.zip | awk '{ print $1 }'
+    register: tf_checksum_value
+  - name: Download the Terraform archive
+    get_url:
+      url: https://releases.hashicorp.com/terraform/{{ tf_version }}/terraform_{{ tf_version }}_linux_amd64.zip
+      dest: /home/{{ user_name }}/src/terraform_{{ tf_version }}_linux_amd64.zip
+      checksum: sha256:{{ tf_checksum_value.stdout }}
+  - name: Extract and install Terraform
+    unarchive:
+      src: /home/{{ user_name }}/src/terraform_{{ tf_version }}_linux_amd64.zip
+      dest: /usr/local/bin
