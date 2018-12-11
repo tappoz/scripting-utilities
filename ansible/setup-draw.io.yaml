@@ -1,0 +1,34 @@
+# reference: https://github.com/jgraph/drawio-desktop/releases/download/v9.3.1/draw.io-amd64-9.3.1.deb
+---
+# ansible-playbook setup-draw.io.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
+- name: Make sure Go is installed
+  hosts: all
+  vars:
+    user_name: "{{ cli_input_username }}"
+    draw_io_version: 9.3.1
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
+  tasks:
+  - name: Download the draw.io deb package
+    get_url:
+      url: https://github.com/jgraph/drawio-desktop/releases/download/v{{ draw_io_version }}/draw.io-amd64-{{ draw_io_version }}.deb
+      dest: /home/{{ user_name }}/src/draw.io-amd64-{{ draw_io_version }}.deb
+  - name: Install draw.io
+    apt:
+      deb: /home/{{ user_name }}/src/draw.io-amd64-{{ draw_io_version }}.deb
+  - name: Git clone drawio-batch
+    git:
+      repo: 'https://github.com/languitar/drawio-batch'
+      dest: /home/{{ user_name }}/src/drawio-batch
+    become_user: "{{ user_name }}"
+  - name: Install drawio-batch
+    npm:
+      name: drawio-batch
+      path: /home/{{ user_name }}/src/
+      # TODO deal with different node/npm/nvm versions...
+      executable: /home/{{ user_name }}/.nvm/versions/node/v8.12.0/bin/npm
+      global: yes
+    become_user: "{{ user_name }}"
