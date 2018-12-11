@@ -35,5 +35,5 @@
       apm install atom-ide-ui
       apm install joefitzgerald/go-plus
       apm install jagregory/language-docker
+      apm install GiantToast/language-terraform
     become_user: "{{ cli_input_username }}"
-    
