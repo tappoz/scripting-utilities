@@ -3,12 +3,16 @@
 # after this notebook has been executed run `az --version` to make sure the command works
 # to login: `read -sp "Type the Azure username: " AZ_USER && echo "" && read -sp "Type the Azure password: " AZ_PASS && echo "" && echo && az login -u $AZ_USER -p $AZ_PASS`
 ---
-# ansible-playbook setup-azure-cli-2.0.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+# ansible-playbook setup-azure-cli-2.0.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
 - name: Make sure Azure CLI 2.0 is installed and configured
-  hosts: localhost
-  sudo: yes
+  hosts: all
   vars:
     user_name: "{{ cli_input_username }}"
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
   tasks:
   # curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
   - name: Fetch the *Debian* GPG key for the Microsoft (Azure CLI 2.0?) repository
@@ -22,7 +26,8 @@
       - lsb-release
       - apt-transport-https        # to be used by `azure-cli`
   - name: Add the Microsoft Azure CLI 2.0 repository to apt
-    command: bash -c 'add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main"'
+    # command: bash -c 'add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main"'
+    command: bash -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ `lsb_release -cs` main" > /etc/apt/sources.list.d/azure_cli.list'
   - name: Update repositories cache (with the Azure CLI 2.0 repo now)
     apt:
       update_cache: yes
