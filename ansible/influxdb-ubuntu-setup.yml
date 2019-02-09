@@ -1,0 +1,33 @@
+# ansible-playbook influxdb-ubuntu-setup.yml -i $(RPI_MACHINE_IP), -vvvv --extra-vars "cli_input_username=pi ansible_user=pi ansible_ssh_pass=raspberry"
+# ansible-playbook influxdb-ubuntu-setup.yml -i 127.0.0.1, -vvvv --extra-vars "cli_input_username=tappoz" --connection=local --ask-sudo-pass
+- name: Make sure InfluxDB is installed and configured
+  hosts: all
+  vars:
+    # set default `vagrant` when this is not provided as an input via the CLI: "{{ cli_input_username }}"
+    # https://stackoverflow.com/questions/35105615/ansible-use-default-if-a-variable-is-not-defined
+    user_name: "{{ cli_input_username | default('vagrant') }}"
+  become: yes
+  tasks:
+  # wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+  - name: Fetch the InfluxDB GPG key
+    apt_key:
+      url: https://repos.influxdata.com/influxdb.key
+      state: present
+  # TODO MAKE THIS FOR DEBIAN / RASPBIAN!
+  - name: Add the InfluxDB repository to apt (UBUNTU NOT DEBIAN)
+    command: bash -c 'source /etc/lsb-release && echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list'
+  - name: Update repositories cache (now with the InfluxDB repo)
+    apt:
+      update_cache: yes
+  - name: Install InfluxDB
+    apt: name=influxdb state=installed
+    # TODO to install the GUI `sudo apt-get install chronograf`
+    # TODO run chronograf on default port 8888 or instead with `chronograf --port=9999`
+  # sudo systemctl unmask influxdb.service
+  # sudo systemctl start influxdb
+  - name: Start the InfluxDB service
+    systemd:
+      name: influxdb
+      masked: no
+      enabled: yes
+      state: started
