@@ -9,13 +9,15 @@
   sudo: yes
   vars:
     user_name: "{{ cli_input_username }}"
-    go_version: 1.10.3
+    go_version: 1.12.1
+    go_checksum: 2a3fdabf665496a0db5f41ec6af7a9b15a49fbe71a85a50ca38b1f13a103aeec
   tasks:
+  # https://golang.org/dl/
   - name: Download the tar file
     get_url:
       url: https://dl.google.com/go/go{{ go_version }}.linux-amd64.tar.gz
       dest: /home/{{ user_name }}/src/go{{ go_version }}.linux-amd64.tar.gz
-      checksum: sha256:fa1b0e45d3b647c252f51f5e1204aba049cde4af177ef9f2181f43004f901035
+      checksum: sha256:{{ go_checksum }}
   - name: Extract Go
     unarchive:
       src: /home/{{ user_name }}/src/go{{ go_version }}.linux-amd64.tar.gz
