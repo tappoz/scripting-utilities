@@ -1,3 +1,12 @@
+# TODO make this work both with a sudo password or with a user/pub key e.g.:
+# ansible-playbook -v -i DNS_FOR_TARGET_VM, <MY_PLAYBOOK>.yml \
+#   --key-file <PATH_TO>/id_rsa \
+#   --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+#
+# That "-i DNS_FOR_TARGET_VM, " could even be "-i localhost, " but needs the
+# extra parameter "--connection=local" combined with the YAML (see below):
+# "hosts: all" instead of "hosts: localhost"
+
 ---
 # ansible-playbook setup-docker.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
 - name: Make sure docker is installed and configured
