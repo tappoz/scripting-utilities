@@ -1,0 +1,32 @@
+# reference: https://github.com/balena-io/etcher#debian-and-ubuntu-based-package-repository-gnulinux-x86x64
+---
+# ansible-playbook setup-etcher.yaml -i "localhost," -vvvv --extra-vars "cli_input_username=alessio" --connection=local
+- name: Make sure Etcher is installed
+  hosts: all
+  vars:
+    user_name: "{{ cli_input_username }}"
+  vars_prompt:
+  - name: "ansible_become_pass"
+    prompt: "Sudo password"
+    private: yes
+  become: yes
+  tasks:
+  # echo "deb https://deb.etcher.io stable etcher" | sudo tee /etc/apt/sources.list.d/etcher.list
+  - name: Add the Etcher repository to apt
+    command: bash -c 'echo "deb https://deb.etcher.io stable etcher" > /etc/apt/sources.list.d/etcher.list'
+  # sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61
+  - name: Fetch the GPG key
+    apt_key:
+      keyserver: keyserver.ubuntu.com
+      id: 379CE192D401AB61
+      state: present
+  - name: Update repositories cache (now with the Etcher repo)
+    apt:
+      update_cache: yes
+  - name: Install Etcher
+    apt: name=etcher-electron state=installed
+
+# Uninstall
+# sudo apt-get remove etcher-electron
+# sudo rm /etc/apt/sources.list.d/etcher.list
+# sudo apt-get update
