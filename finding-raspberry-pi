@@ -26,3 +26,10 @@ find_mac ${RPI_WIFI_MAC}
 echo -e '\nSearching for the ethernet interface...'
 find_mac ${RPI_ETH0_MAC}
 echo -e '\n...done :)\n'
+
+echo -e "\n...now using an alternative method...\n"
+sudo netdiscover -i wlan0
+
+echo -e "\n...now using yet another alternative method...\n"
+nmap -sP 192.168.0.1/24 | grep "Nmap scan" | awk '{ print $5 "\t --- " $6}'
+
