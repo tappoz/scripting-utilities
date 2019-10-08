@@ -1,40 +1,50 @@
 ---
-# ansible-playbook setup-golang.yaml -vvvv --ask-sudo-pass --extra-vars "cli_input_username=<PUT_YOUR_USERNAME>"
+# ansible-playbook setup-golang.yaml -v -i MY_HOST_IP_ADDRESS, --ask-sudo-pass --extra-vars "ansible_user=<USERNAME> ansible_ssh_pass=<PASSWD>"
+# ansible-playbook setup-golang.yaml -v -i MY_HOST_IP_ADDRESS, --extra-vars "ansible_user=<USERNAME>" --key-file "~/.ssh/my_key"
 
-# TODO clean/move a previous version to a dedicated place
-# to troubleshoot: `type go` (or `which go` instead)
-# before running the following: remove completely the existing version: `sudo rm -rf /usr/local/go`
 - name: Make sure Go is installed
-  hosts: localhost
-  sudo: yes
+  hosts: all
+  become: yes
   vars:
-    user_name: "{{ cli_input_username }}"
-    go_version: 1.12.1
-    go_checksum: 2a3fdabf665496a0db5f41ec6af7a9b15a49fbe71a85a50ca38b1f13a103aeec
+    requested_go_v:  "{{version | default('1.12.7')}}"
+    go_installation_path: /usr/local
   tasks:
-  # https://golang.org/dl/
-  - name: Download the tar file
-    get_url:
-      url: https://dl.google.com/go/go{{ go_version }}.linux-amd64.tar.gz
-      dest: /home/{{ user_name }}/src/go{{ go_version }}.linux-amd64.tar.gz
-      checksum: sha256:{{ go_checksum }}
-  - name: Extract Go
+  - name: Checking the installed Go version
+    shell: /usr/local/go/bin/go version | awk '{print $3}' | sed 's/go//'
+    register: current_v
+    changed_when: false
+  - name: Compare the installed version to the requested version
+    debug:
+      msg: Installed = {{current_v.stdout}}, Requested = {{requested_go_v}}
+  - name: Checks on versions match/mismatch
+    block:
+      - name: Check if an upgrade is needed
+        debug:
+          msg: "nothing to upgrade, ending play"
+      - meta: end_play
+    when: current_v.stdout == requested_go_v
+  - name: FOO
+    debug:
+      msg: "FOO"
+  - name: Cleaun up the old Go installation
+    file:
+      path: '{{go_installation_path}}/go'
+      state: absent
+  - name: Download & extract (install) Go
     unarchive:
-      src: /home/{{ user_name }}/src/go{{ go_version }}.linux-amd64.tar.gz
-      dest: /usr/local/
-  # - name: Make sure Go is configured
-  #   # in ansible 2.3 this `destfile` becomes `path`
-  #   lineinfile: destfile=/home/{{ user_name }}/.bashrc line='{{ item.line }}' backup=yes state=present
-  #   with_items:
-  #     - { line: "export GOROOT=/usr/local/go" }
-  #     - { line: "export PATH=$PATH:/usr/local/go/bin" }
+      src: https://dl.google.com/go/go{{requested_go_v}}.linux-amd64.tar.gz
+      dest: '{{go_installation_path}}'
+      remote_src: yes
+  - name: Make sure GOPATH is there
+    file:
+      path: /home/{{ ansible_user }}/go-path
+      state: directory
   - name: Make sure Go is configured
     blockinfile:
-      # in ansible 2.3 this `destfile` becomes `path`
-      destfile: /home/{{ user_name }}/.bashrc
+      path: /home/{{ ansible_user }}/.bashrc
       backup: yes
       marker: "# {mark} Golang config"
       block: |
-        # the Go configuration details
         export GOROOT=/usr/local/go
+        export GOPATH=$HOME/go-path
         export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
