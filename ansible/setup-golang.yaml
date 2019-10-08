@@ -16,16 +16,13 @@
   - name: Compare the installed version to the requested version
     debug:
       msg: Installed = {{current_v.stdout}}, Requested = {{requested_go_v}}
-  - name: Checks on versions match/mismatch
-    block:
-      - name: Check if an upgrade is needed
-        debug:
-          msg: "nothing to upgrade, ending play"
-      - meta: end_play
-    when: current_v.stdout == requested_go_v
-  - name: FOO
-    debug:
-      msg: "FOO"
+  # - name: Checks on versions match/mismatch
+  #   block:
+  #     - name: Check if an upgrade is needed
+  #       debug:
+  #         msg: "nothing to upgrade, ending play"
+  #     - meta: end_play
+  #   when: current_v.stdout == requested_go_v
   - name: Cleaun up the old Go installation
     file:
       path: '{{go_installation_path}}/go'
@@ -37,8 +34,15 @@
       remote_src: yes
   - name: Make sure GOPATH is there
     file:
-      path: /home/{{ ansible_user }}/go-path
+      path: "{{item}}"
+      owner: '{{ ansible_user }}'
+      group: '{{ ansible_user }}'
       state: directory
+    with_items:
+      - "/home/{{ ansible_user }}/go-path"
+      - "/home/{{ ansible_user }}/go-path/src"
+      - "/home/{{ ansible_user }}/go-path/pkg"
+      - "/home/{{ ansible_user }}/go-path/bin"
   - name: Make sure Go is configured
     blockinfile:
       path: /home/{{ ansible_user }}/.bashrc
