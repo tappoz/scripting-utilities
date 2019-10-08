@@ -1,0 +1,5 @@
+myid_ecdsa*
+myid_rsa*
+.terraform
+terraform.tfstate*
+variables.tfvars
