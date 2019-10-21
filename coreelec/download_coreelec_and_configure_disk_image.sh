@@ -46,14 +46,20 @@ mkdir -p ${FULL_IMG_2}
 
 mount ${IMG_FILENAME} -o loop,offset=$(( ${SECTOR_SIZE} * ${IMG_1_START_BLOCK})) ${FULL_IMG_1}/
 
+
+# IMG_NAME=gxl_p212_1g.dtb # MXQ Pro 4K (Amlogic)
+IMG_NAME=gxm_q201_3g.dtb # Mecool M8S Pro L (Amlogic)
+
 echo -e "\n\nBefore moving the files..."
 ls -lah ${FULL_IMG_1}/
-cp ${FULL_IMG_1}/device_trees/gxl_p212_1g.dtb ${FULL_IMG_1}/
-mv ${FULL_IMG_1}/gxl_p212_1g.dtb ${FULL_IMG_1}/dtb.img
+cp ${FULL_IMG_1}/device_trees/${IMG_NAME} ${FULL_IMG_1}/
+rm ${FULL_IMG_1}/dtb.img
+mv ${FULL_IMG_1}/${IMG_NAME} ${FULL_IMG_1}/dtb.img
 echo -e "\n\nAfter moving the files..."
 ls -lah ${FULL_IMG_1}/
 
-# md5sum img1/dtb.img
-# md5sum img1/device_trees/gxl_p212_1g.dtb
+echo -e "\n\nPrinting checksums...\n"
+md5sum ${FULL_IMG_1}/dtb.img
+md5sum ${FULL_IMG_1}/device_trees/${IMG_NAME}
 
 umount ${FULL_IMG_1}/
