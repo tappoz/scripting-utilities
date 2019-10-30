@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
-VERSION=9.2.0
+# https://github.com/CoreELEC/CoreELEC/releases/download/9.0.3/CoreELEC-Amlogic.arm-9.0.3-Generic.img.gz
+# https://github.com/CoreELEC/CoreELEC/releases/download/9.2.0/CoreELEC-Amlogic.arm-9.2.0-Generic.img.gz
+
+# https://discourse.coreelec.org/t/mecool-m8s-pro-l-boot-loop/7162
+# https://discourse.coreelec.org/t/9-2-0-discussion/6921/190
+
+VERSION=9.0.3
+# VERSION=9.2.0
 IMG_FILENAME=CoreELEC-Amlogic.arm-${VERSION}-Generic.img
 ZIP_FILENAME=${IMG_FILENAME}.gz
 
