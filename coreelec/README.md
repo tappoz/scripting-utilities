@@ -38,30 +38,67 @@ https://mxqproject.com/coreelec-a-minor-libreelec-fork/
 apt-get install gcc-arm-linux-gnueabihf
 ```
 
-## LibreELEC
+# Mecool M8S Pro L (Amlogic)
 
-- https://forum.libreelec.tv/thread/17565-nightly-images-for-a64-h3-and-h6-boards/
-- https://test.libreelec.tv/
+## Reboot the TV box
 
-## Random internet
+- Boot Into ANDROID TV Box Recovery Without The RESET Button - Easy Peasy With Terminal App
+  https://www.youtube.com/watch?v=qBH-bjWgVjE
+- Reboot to LibreELEC 1.1 APK (Thomas van Tilburg)
+    - https://apkplz.net/app/me.thomastv.rebootupdate
+    - https://play.google.com/store/apps/details?id=me.thomastv.rebootupdate&hl=en
+- Install a Terminal APK for Android, then run `reboot update`
 
-Firmware MXQ-4K Allwinner H3
-- https://www.youtube.com/watch?v=lhysrHOZJHk
-- https://mega.nz/#!ZMpx3SIS!Nfd3u7-cwapfwXIPjKmNnOBSkbZupfBdmBaM0gwvP9M
+## UART logging (Universal Asynchronous Receiver/Transmitter)
 
-Rom ou firmware da tvbox  MXQ-4K chip=Allwinner H3
-Firmware testado e aprovado tudo rodando perfeito.
-                            Detalhes do Firmware
-Nome do arquivo: H3-R69-MXQ-S-MXQ4K-8PD3-1.1.4
-Imagem: H3-R69-MXQ-S-MXQ4K-8PD3-1.1.4.img
-Tamanho do arquivo: 529 MB
-Wifi:XR819    Rede internet:PPT 1910B
-Plataforma: Allwinner H3
-Android :7.1
- Download do arquivo e programa para instalação:
+- http://mxqproject.com/uart-for-amlogic-allwinner-and-rockchip-devices-setting-up-guide/
+    - UART for Amlogic Allwinner and Rockchip Android TV Boxes: How To Connect Guide Tutorial
+      https://www.youtube.com/watch?v=uSuFVntxRg0
+- Serial console program
+    - HyperTerm
+    - minicom
+- Use `screen`:
+    - check the USB ports that are plugged with `lsusb | grep USB` and `ls -l /dev/ttyUS*`
+      (e.g. `/dev/ttyUSB1`)
+    - then check what is being written on the serial port with `screen /dev/ttyUSB1 115200`
+      where `115200` is the baud rate for Amlogic chips (for Rockchip devices that's `15000`)
+- FTDI connector:
+    - CH340G
+    - https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all
 
-## H3Droid
+## Default android
 
-https://www.h3droid.com/download
-https://www.h3droid.com/h3ii
-https://h3droid.com/blog/sunvell-r69-my-adventures-with-a-cheap-tv-box
+```
+# check open ports...
+$ nc -vz 192.168.0.53 1-10000 2>&1 | grep -v refused
+Connection to 192.168.0.53 5555 port [tcp/*] succeeded!
+Connection to 192.168.0.53 6466 port [tcp/*] succeeded!
+Connection to 192.168.0.53 6467 port [tcp/*] succeeded!
+```
+
+
+Download the APK to reboot (Reboot to LibreELEC 1.1 APK (Thomas van Tilburg))
+
+```
+wget --content-disposition https://d-02.apkplz.org/dl.php?s=bkxnUnJvK1U4QmZaZFIwRnU3NHlkQWdLNXNyY2t5c3FXQTducFluaHRqQVVGSzhZSmxLdnhVZkhiYTF3ZUlxQ3kwenVhTFVJQnNJTEpLMkhsQ2V2cUU4RUxtYXdrRTZ3aDhySkJJRm9Cd1JGWldOdEpEeU4vcmhaeU5PZEpSRWo3K3RyRm0yWkk2Q2QvV2lHTXZ4RjN3PT0=
+``
+
+Install and execute the App to reboot the TV box
+
+```
+# Connect to the Android TV (default on port 5555)
+adb connect 192.168.0.53
+# Check the list of devices (it should say something about being "unauthorized")
+adb devices -l
+# You should now see on the TV screen a popup window asking if you want to
+# enable the debug mode, hit "YES" with your remote controller
+# Check again the list of devices (now saying something like "device product:q20x model:M8S_PRO_L device:M8S_PRO_L_4335 transport_id:2")
+adb devices -l
+# Install the APK (that below is the filename in the current directory)
+adb install me.thomastv.rebootupdate_11_apkplz.net.apk
+# Check the Java package name of the App (pkg, or pkn) from the logs
+adb logcat | grep thomastv
+# Run the App
+adb shell monkey -p me.thomastv.rebootupdate  -c android.intent.category.LAUNCHER 1
+# Hit the "OK" button of the remote controller when asked from the screen to reboot
+```
