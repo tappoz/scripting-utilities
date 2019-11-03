@@ -40,6 +40,13 @@ apt-get install gcc-arm-linux-gnueabihf
 
 # Mecool M8S Pro L (Amlogic)
 
+To find the IP address of the TV box given the MAC address, we know it ends with
+`XX:YY`, so we can do:
+
+```sh
+sudo arp-scan 192.168.0.1/24 2>&1 | grep XX:YY
+```
+
 ## Reboot the TV box
 
 - Boot Into ANDROID TV Box Recovery Without The RESET Button - Easy Peasy With Terminal App
@@ -66,14 +73,20 @@ apt-get install gcc-arm-linux-gnueabihf
     - CH340G
     - https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all
 
+The UART pins are not marked so using a multimeter:
+
+- To find `GND` and `3.3V`: use the "continuity test" and check it agains
+  another ground e.g. on a capacitor.
+- To find `TX` and `RX`:
+
 ## Default android
 
 ```
 # check open ports...
-$ nc -vz 192.168.0.53 1-10000 2>&1 | grep -v refused
-Connection to 192.168.0.53 5555 port [tcp/*] succeeded!
-Connection to 192.168.0.53 6466 port [tcp/*] succeeded!
-Connection to 192.168.0.53 6467 port [tcp/*] succeeded!
+$ nc -vz 192.168.0.XXX 1-10000 2>&1 | grep -v refused
+Connection to 192.168.0.XXX 5555 port [tcp/*] succeeded!
+Connection to 192.168.0.XXX 6466 port [tcp/*] succeeded!
+Connection to 192.168.0.XXX 6467 port [tcp/*] succeeded!
 ```
 
 
@@ -85,9 +98,9 @@ wget --content-disposition https://d-02.apkplz.org/dl.php?s=bkxnUnJvK1U4QmZaZFIw
 
 Install and execute the App to reboot the TV box
 
-```
+```sh
 # Connect to the Android TV (default on port 5555)
-adb connect 192.168.0.53
+adb connect 192.168.0.XXX
 # Check the list of devices (it should say something about being "unauthorized")
 adb devices -l
 # You should now see on the TV screen a popup window asking if you want to
@@ -102,3 +115,26 @@ adb logcat | grep thomastv
 adb shell monkey -p me.thomastv.rebootupdate  -c android.intent.category.LAUNCHER 1
 # Hit the "OK" button of the remote controller when asked from the screen to reboot
 ```
+
+### Uninstall the Reoot app
+
+```
+# find the app
+$ adb shell pm list packages -f | grep thomastv
+package:/data/app/me.thomastv.rebootupdate-1/base.apk=me.thomastv.rebootupdate
+# uninstall the app/apk using the package name
+$ adb uninstall me.thomastv.rebootupdate
+Success
+```
+
+### Alternative method to reboot the TV Box
+
+```
+adb reboot update
+adb shell reboot update
+```
+
+# CoreELEC
+
+- Use a USB mouse to go through the setup wizard (**enable SSH**).
+- `ssh root@192.168.0.XXX` then use `coreelec` as password.

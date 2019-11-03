@@ -1,0 +1,10 @@
+# To run this playbook:
+# `ansible-playbook configure-tv-box.yaml -i 192.168.0.53, -v --extra-vars "ansible_user=root ansible_ssh_pass=coreelec"`
+- name: Configure the TV box
+  hosts: all
+  become: yes
+  tasks:
+  - name: List files...
+    shell: |
+      pwd
+      ls -lah
