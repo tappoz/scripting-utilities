@@ -40,12 +40,12 @@ apt-get install gcc-arm-linux-gnueabihf
 
 # Mecool M8S Pro L (Amlogic)
 
-To find the IP address of the TV box given the MAC address, we know it ends with
-`XX:YY`, so we can do:
+We know the MAC address of the TV box ends with `XX:YY` (check the label on the box),
+so to find the IP address given the MAC address we can run the following commands:
 
-```sh
-sudo arp-scan 192.168.0.1/24 2>&1 | grep XX:YY
-```
+- `sudo arp-scan 192.168.0.1/24 2>&1 | grep XX:YY`
+- `sudo tcpdump -env 2>&1 | grep ARP.*XX:YY`
+- `sudo nmap -sn 192.168.0.1/24 | grep -B2 XX:YY`
 
 ## Reboot the TV box
 
