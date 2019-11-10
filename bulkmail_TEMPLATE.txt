@@ -1,0 +1,6 @@
+Subject: Foo sbj
+To: {TO_EMAIL}
+CC: {CC_EMAIL}
+
+Dear {NAME},
+Kind regards
