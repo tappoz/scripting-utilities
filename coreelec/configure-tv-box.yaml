@@ -4,7 +4,10 @@
   hosts: all
   become: yes
   tasks:
-  - name: List files...
+    # https://discourse.coreelec.org/t/witch-device-tree-for-remote-mecool/4925/9
+  - name: Setup the IR infrared remote controller for Mecool M8S Pro L
     shell: |
-      pwd
-      ls -lah
+      echo "meson-ir * mecool" > /storage/.config/rc_maps.cfg
+  - name: Reboot (to apply the IR config)
+    shell: |
+      reboot

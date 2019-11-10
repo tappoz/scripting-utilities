@@ -138,3 +138,14 @@ adb shell reboot update
 
 - Use a USB mouse to go through the setup wizard (**enable SSH**).
 - `ssh root@192.168.0.XXX` then use `coreelec` as password.
+
+# IR Infrared Remote
+
+- https://forum.libreelec.tv/thread/11643-le9-0-remote-configs-ir-keytable-amlogic-devices/
+
+Check the available configuration:
+
+```sh
+ls -lah /usr/lib/udev/rc_keymaps | grep mecool
+cat /storage/.config/rc_maps.cfg.sample
+```
