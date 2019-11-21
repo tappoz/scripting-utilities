@@ -1,0 +1,105 @@
+# To run this playbook:
+#
+# `MY_FTP_USER_PASSWORD=abcdefg ansible-playbook setup-ftp-server.yaml -i <IP_ADDRESS>, -v --extra-vars "ansible_user=<MY_USERNAME> ansible_ssh_pass=<MY_PASSWORD>"`
+# `MY_FTP_USER_PASSWORD=abcdefg ansible-playbook setup-ftp-server.yaml -v -i <IP_ADDRESS>, --extra-vars "ansible_user=<MY_USERNAME>" --key-file "~/.ssh/my_key"`
+#
+# for a DRY RUN: `--check`
+#
+# `lftp sftp://myftpuser:${MY_FTP_USER_PASSWORD}@<IP_ADDRESS> -p 21`
+- name: Configure FTP server
+  hosts: all
+  become: yes
+  vars:
+     my_ftp_user_password: "{{ lookup('env','MY_FTP_USER_PASSWORD') }}"
+  tasks:
+    # sudo apt --purge autoremove -y vsftpd
+  - name: Installing the FTP server
+    apt:
+      pkg:
+        - vsftpd
+      state: present
+      update_cache: yes
+  # - name: Check whether the FTP conf file exists
+  #   raw: test -e /etc/vsftpd.conf && echo true || echo false
+  #   register: vsftp_conf_present
+  #   ignore_errors: yes
+  # - name: Check the output of "vsftp_conf_present"
+  #   debug: var=vsftp_conf_present
+  - name: Copy the conf file to a backup
+    copy: remote_src=True src=/etc/vsftpd.conf dest=/etc/vsftpd.conf.backup.{{ ansible_date_time.iso8601_basic }}
+    # when: vsftp_conf_present.rc == "true\r\n"
+  - name: Remove the old conf file (after the backup)
+    file: path=/etc/vsftpd.conf state=absent
+    # https://www.tecmint.com/install-ftp-server-in-ubuntu/
+    # https://help.ubuntu.com/lts/serverguide/ftp-server.html
+    # https://vitux.com/install-vsftpd-ftp-server-tls-ubuntu/
+    # https://www.tecmint.com/install-ftp-server-in-ubuntu/
+    # https://support.hostway.com/hc/en-us/articles/360000564410-How-to-enable-passive-FTP-connections-in-vsftpd
+  - name: Put the right FTP configuration details
+    blockinfile:
+      path: /etc/vsftpd.conf
+      owner: root
+      group: root
+      mode: 0644
+      create: yes
+      backup: yes
+      block: |
+        # disable anonymous login
+        anonymous_enable=NO
+        # permit local logins
+        local_enable=YES
+        # enable FTP commands which change the filesystem
+        write_enable=YES
+        # value of umask for file creation for local users
+        local_umask=022
+        # enable showing of messages when users first enter a new directory
+        dirmessage_enable=YES
+        # a log file will be maintained at /var/log/vsftpd.log detailing uploads and downloads
+        xferlog_enable=YES
+        # use port 20 (ftp-data) on the server machine for PORT style connections
+        connect_from_port_20=YES
+        # keep standard log file format
+        xferlog_std_format=YES
+        # prevent vsftpd from running in standalone mode
+        listen=NO
+        # THIS DOES NOT FIX THE FOLLWING: 'journalctl -u vsftpd.service' gives: 'vsftpd.service: Main process exited, code=exited, status=2/INVALIDARGUMENT'
+        listen_ipv6=YES
+        # name of the PAM service vsftpd will use
+        pam_service_name=vsftpd
+        # enable vsftpd to load a list of usernames
+        # userlist_enable=YES
+        # turn on tcp wrappers
+        tcp_wrappers=YES
+        # allow to recursively inspect the file system (no problem with heavy I/O)
+        ls_recurse_enable=YES
+        # local users limited to their home directories after login (chroot jail)
+        chroot_local_user=YES
+        # allow chroot jail for local users to be writable
+        allow_writeable_chroot=YES
+        # enable passive connections
+        pasv_enable=YES
+        # passive connections port range
+        pasv_min_port=10000
+        # passive connections port range
+        pasv_max_port=10100
+        # enable FTPS
+        ssl_enable=YES
+        # only TLS (not old SSL standards)
+        ssl_tlsv1=YES
+        # only TLS (not old SSL standards)
+        ssl_sslv2=NO
+        # only TLS (not old SSL standards)
+        ssl_sslv3=NO
+        rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+        rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+    # sudo deluser --remove-home myftpuser
+  - name: Add the FTP user
+    user:
+      name: myftpuser
+      password: '{{ my_ftp_user_password }}'
+  - name: Restart the FTP daemon
+    systemd:
+      name: vsftpd
+      state: restarted
+      daemon_reload: yes
+      # enabled: yes
