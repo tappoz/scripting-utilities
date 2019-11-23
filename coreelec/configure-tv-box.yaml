@@ -1,13 +1,35 @@
 # To run this playbook:
-# `ansible-playbook configure-tv-box.yaml -i 192.168.0.53, -v --extra-vars "ansible_user=root ansible_ssh_pass=coreelec"`
+# `MY_WIFI_SSID=foo MY_WIFI_PASSWORD=bar ansible-playbook configure-tv-box.yaml -i 192.168.0.53, -v --extra-vars "ansible_user=root ansible_ssh_pass=coreelec"`
 - name: Configure the TV box
   hosts: all
   become: yes
+  vars:
+     my_wifi_ssid: "{{ lookup('env','MY_WIFI_SSID') }}"
+     my_wifi_password: "{{ lookup('env','MY_WIFI_PASSWORD') }}"
   tasks:
-    # https://discourse.coreelec.org/t/witch-device-tree-for-remote-mecool/4925/9
+  - name: Echo the values from the environment variables
+    debug:
+      msg: WIFI SSID {{ my_wifi_ssid }} with password {{ my_wifi_password }}
+  # https://discourse.coreelec.org/t/witch-device-tree-for-remote-mecool/4925/9
   - name: Setup the IR infrared remote controller for Mecool M8S Pro L
     shell: |
       echo "meson-ir * mecool" > /storage/.config/rc_maps.cfg
+  # store the Wifi ID in a var (have to filter out the annoying "Scan completed for wifi")
+  # which is not either stdout or stderr... (that's the double awk...)
+  # TODO fix the following...
+  - name: Setup the Wifi details
+    shell: |
+      connmanctl enable wifi
+      WIFI_ID=$(WIFI_ID_DIRT=$(connmanctl scan wifi && connmanctl services 2>&1 | grep {{ my_wifi_ssid }} | awk '{ print $2 }') && echo $WIFI_ID_DIRT | awk '{ print $5 }')
+      echo Wifi ID: $WIFI_ID
+      mkdir /storage/.cache/connman/$WIFI_ID
+      cat << EOF > /storage/.cache/connman/$WIFI_ID/settings
+      [$WIFI_ID]
+      Name={{ my_wifi_ssid }}
+      Type=wifi
+      Security=wpa2
+      Passphrase={{ my_wifi_password }}
+      EOF
   - name: Reboot (to apply the IR config)
     shell: |
       reboot
