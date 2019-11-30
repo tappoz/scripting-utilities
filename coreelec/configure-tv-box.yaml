@@ -7,9 +7,9 @@
      my_wifi_ssid: "{{ lookup('env','MY_WIFI_SSID') }}"
      my_wifi_password: "{{ lookup('env','MY_WIFI_PASSWORD') }}"
   tasks:
-  - name: Echo the values from the environment variables
-    debug:
-      msg: WIFI SSID {{ my_wifi_ssid }} with password {{ my_wifi_password }}
+  # - name: Echo the values from the environment variables
+  #   debug:
+  #     msg: WIFI SSID {{ my_wifi_ssid }} with password {{ my_wifi_password }}
   # https://discourse.coreelec.org/t/witch-device-tree-for-remote-mecool/4925/9
   - name: Setup the IR infrared remote controller for Mecool M8S Pro L
     shell: |
@@ -39,6 +39,17 @@
       backup: no
       block: |
         alias ll='ls -alFh'
+  - name: Create the downloads directory
+    file:
+      path: /storage/MyDownloads
+      state: directory
+  - name: Download Plugins (Add-ons) to be installed via the Kodi UI
+    get_url:
+      url: "{{ item.url }}"
+      dest: "/storage/MyDownloads/{{ item.filename }}"
+    with_items:
+    - { url: "https://github.com/NeverWise/plugin.video.dplay/archive/master.zip", filename: "plugin.video.dplay.zip" }
+    - { url: "https://github.com/CastagnaIT/plugin.video.netflix/archive/master.zip", filename: "plugin.video.netflix.zip" }
   # # store the Wifi ID in a var (have to filter out the annoying "Scan completed for wifi")
   # # which is not either stdout or stderr... (that's the double awk...)
   # - name: Setup the Wifi details
