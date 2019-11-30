@@ -14,33 +14,58 @@
   - name: Setup the IR infrared remote controller for Mecool M8S Pro L
     shell: |
       echo "meson-ir * mecool" > /storage/.config/rc_maps.cfg
-  # store the Wifi ID in a var (have to filter out the annoying "Scan completed for wifi")
-  # which is not either stdout or stderr... (that's the double awk...)
-  - name: Setup the Wifi details
-    shell: |
-      connmanctl enable wifi > /dev/null 2>&1
-      WIFI_ID=$(WIFI_ID_DIRT=$(connmanctl scan wifi && connmanctl services 2>&1 | grep {{ my_wifi_ssid }} | awk '{ print $2 }') && echo $WIFI_ID_DIRT | awk '{ print $5 }')
-      mkdir -p /storage/.cache/connman/$WIFI_ID
-      echo $WIFI_ID
-    register: wifi_id
-  - set_fact:
-      wifi_id={{ wifi_id.stdout }}
-  # - debug: var=wifi_id
-  - name: Store the Wifi configuration file
+  # https://raspberrypi.stackexchange.com/a/17040
+  - name: Setup .profile
     blockinfile:
-      path: /storage/.cache/connman/{{ wifi_id }}/settings
+      path: /storage/.profile
       owner: root
       group: root
       mode: 0600
       create: yes
       backup: no
       block: |
-        [{{ wifi_id }}]
-        Name={{ my_wifi_ssid }}
-        AutoConnect=true
-        Type=wifi
-        Security=wpa2
-        Passphrase={{ my_wifi_password }}
+        SHELL=/bin/bash
+        PATH=/storage/bin:$PATH
+        TERM=xterm-color
+        exec bash & source /storage/.bashrc
+  # https://raspberrypi.stackexchange.com/a/17040
+  - name: Setup .bashrc
+    blockinfile:
+      path: /storage/.bashrc
+      owner: root
+      group: root
+      mode: 0600
+      create: yes
+      backup: no
+      block: |
+        alias ll='ls -alFh'
+  # # store the Wifi ID in a var (have to filter out the annoying "Scan completed for wifi")
+  # # which is not either stdout or stderr... (that's the double awk...)
+  # - name: Setup the Wifi details
+  #   shell: |
+  #     connmanctl enable wifi > /dev/null 2>&1
+  #     WIFI_ID=$(WIFI_ID_DIRT=$(connmanctl scan wifi && connmanctl services 2>&1 | grep {{ my_wifi_ssid }} | awk '{ print $2 }') && echo $WIFI_ID_DIRT | awk '{ print $5 }')
+  #     mkdir -p /storage/.cache/connman/$WIFI_ID
+  #     echo $WIFI_ID
+  #   register: wifi_id
+  # - set_fact:
+  #     wifi_id={{ wifi_id.stdout }}
+  # # - debug: var=wifi_id
+  # - name: Store the Wifi configuration file
+  #   blockinfile:
+  #     path: /storage/.cache/connman/{{ wifi_id }}/settings
+  #     owner: root
+  #     group: root
+  #     mode: 0600
+  #     create: yes
+  #     backup: no
+  #     block: |
+  #       [{{ wifi_id }}]
+  #       Name={{ my_wifi_ssid }}
+  #       AutoConnect=true
+  #       Type=wifi
+  #       Security=wpa2
+  #       Passphrase={{ my_wifi_password }}
   - name: Reboot (to apply the IR config)
     shell: |
       reboot
