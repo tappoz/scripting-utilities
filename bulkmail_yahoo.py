@@ -43,8 +43,12 @@ def __get_yahoo_connection(smtp_username, smtp_password):
 
 
 def get_yahoo_connection():
-    SMTP_USERNAME = os.environ["SMTP_USERNAME"]
-    SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+    try:
+        SMTP_USERNAME = os.environ["SMTP_USERNAME"]
+        SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+    except Exception as e:
+        logging.error("The SMTP credentials need to be passed as environment variables! Try something like: 'SMTP_USERNAME=ABC SMTP_PASSWORD=ABC python bulkmail_yahoo.py'")
+        raise e
     mailbox_email = f"{SMTP_USERNAME}@yahoo.it"
     logging.info(f"Returning the SMTP connection for mailbox email: {mailbox_email}")
     return __get_yahoo_connection(SMTP_USERNAME, SMTP_PASSWORD), mailbox_email
