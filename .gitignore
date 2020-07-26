@@ -8,3 +8,4 @@ finding-rpi.conf
 open_browser_tabs*.csv
 notebooks/.ipynb_checkpoints/
 *.retry
+bulkmail_conf_TEMPLATE.json
