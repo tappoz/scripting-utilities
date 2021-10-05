@@ -6,7 +6,7 @@
   hosts: localhost
   become: yes
   vars:
-    requested_go_v:  "{{version | default('1.14')}}"
+    requested_go_v:  "{{version | default('1.17.1')}}"
     go_installation_path: /usr/local
   tasks:
   - name: Checking the installed Go version
