@@ -149,3 +149,21 @@ Check the available configuration:
 ls -lah /usr/lib/udev/rc_keymaps | grep mecool
 cat /storage/.config/rc_maps.cfg.sample
 ```
+
+# CoreELEC 9.2.8 Netflix plugin for Kodi 18 Leia on Mecool M8S Pro L
+
+First install `sshpass` with `sudo apt install sshpass`.
+
+```sh
+# SSH into the TV BOX with password "coreelec"
+sshpass -p coreelec ssh root@192.168.1.XXX
+# find a place where to download ZIP files
+mkdir -p /storage/MyDownloads
+cd /storage/MyDownloads
+# rename the old plugin ZIP file if you want to retain it
+mv plugin.video.netflix.zip plugin.video.netflix.zip.old
+# download the new plugin ZIP file
+wget https://github.com/CastagnaIT/plugin.video.netflix/releases/download/v1.12.6/plugin.video.netflix-1.12.6.zip
+# exit the SSH session, if you see "You have stopped jobs.", then:
+kill -9 `jobs -p`
+```
