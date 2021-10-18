@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import logging
 import json
 import os
 
@@ -33,22 +32,22 @@ def inspect_servers():
     uc_servers = []
     for uc_server in servers_list:
         uc_servers.append(uc_server.to_dict())
-    logging.info(
+    print(
         f"This is the list of current servers on UpCloud:\n{json.dumps(uc_servers, indent=2)}\n"
     )
 
     # check a specific server provided by *hostname*
     my_server = get_server_by_hostname(servers_list, AG_SERVER_HOSTNAME)
-    logging.info(f"What is '{AG_SERVER_HOSTNAME}' state? {my_server.state}")
+    print(f"What is '{AG_SERVER_HOSTNAME}' state? {my_server.state}")
     is_done = my_server.ensure_started()
-    logging.info(
+    print(
         f"This '{AG_SERVER_HOSTNAME}' says it started? {is_done} what is its state? {my_server.state}"
     )
 
     # if you want to shutdown your server:
     #
     # is_done = my_server.shutdown()
-    # logging.info(
+    # print(
     #     f"This '{AG_SERVER_HOSTNAME}' says it stopped? {is_done} what is its state? {my_server.state}"
     # )
 
@@ -56,7 +55,7 @@ def inspect_servers():
 def get_server_by_hostname(servers, hostname):
     for s in servers:
         if s.hostname == hostname:
-            logging.info(f"Found the VM hostname we were looking for: {s.hostname}")
+            print(f"Found the VM hostname we were looking for: {s.hostname}")
             return s
     return None
 
