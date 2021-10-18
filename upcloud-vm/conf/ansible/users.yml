@@ -1,0 +1,34 @@
+- name: Add agdmin user
+  hosts: all
+  become: yes
+  vars:
+    - my_username: agadmin
+    - no_psw_group: sudo-nopasswd
+  tasks:
+  - name: Install sudo
+    apt:
+      name: sudo
+      update_cache: yes
+  - name: Create  group
+    group:
+      name: '{{ no_psw_group }}'
+  - name: Add group to "sudoers" file
+    lineinfile:
+      dest: /etc/sudoers
+      line: '%{{ no_psw_group }} ALL=(ALL:ALL) NOPASSWD:ALL'
+      regexp: '^%{{ no_psw_group }}'
+  - name: Setup The User
+    user:
+      name: '{{ my_username }}'
+      comment: The new custom User
+      groups: 
+        - '{{ no_psw_group }}'
+      append: true # --> user is not removed from any other group
+      state: present
+      shell: /bin/bash
+      createhome: yes
+  - name: Add authorized keys
+    authorized_key:
+      user: '{{ my_username }}'
+      key: "{{ lookup('file', '../agadmin_ag_tppz_vm.pub') }}"
+      state: present

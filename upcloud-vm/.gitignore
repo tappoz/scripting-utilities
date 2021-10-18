@@ -1,0 +1,3 @@
+tf/.terraform
+bin/terraform
+tf/.terraform.lock.hcl
