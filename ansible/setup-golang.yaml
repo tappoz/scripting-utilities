@@ -1,4 +1,5 @@
 ---
+# ansible-playbook setup-golang.yaml -v -i "localhost," -v --ask-become-pass --connection=local --extra-vars "ansible_user=<MYUSERNAME>
 # ansible-playbook setup-golang.yaml -v  --ask-become-pass --extra-vars "ansible_user=<MYUSERNAME> ansible_ssh_pass=<MYPASSWD>"
 # ansible-playbook setup-golang.yaml -v -i MY_HOST_IP_ADDRESS, --extra-vars "ansible_user=<USERNAME>" --key-file "~/.ssh/my_key"
 
@@ -6,7 +7,7 @@
   hosts: localhost
   become: yes
   vars:
-    requested_go_v:  "{{version | default('1.17.1')}}"
+    requested_go_v:  "{{version | default('1.17.2')}}"
     go_installation_path: /usr/local
   tasks:
   - name: Checking the installed Go version
@@ -32,23 +33,10 @@
       src: https://dl.google.com/go/go{{requested_go_v}}.linux-amd64.tar.gz
       dest: '{{go_installation_path}}'
       remote_src: yes
-  - name: Make sure GOPATH is there
-    file:
-      path: "{{item}}"
-      owner: '{{ ansible_user }}'
-      group: '{{ ansible_user }}'
-      state: directory
-    with_items:
-      - "/home/{{ ansible_user }}/go-path"
-      - "/home/{{ ansible_user }}/go-path/src"
-      - "/home/{{ ansible_user }}/go-path/pkg"
-      - "/home/{{ ansible_user }}/go-path/bin"
   - name: Make sure Go is configured
     blockinfile:
       path: /home/{{ ansible_user }}/.bashrc
       backup: yes
       marker: "# {mark} Golang config"
       block: |
-        export GOROOT=/usr/local/go
-        export GOPATH=$HOME/go-path
         export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
