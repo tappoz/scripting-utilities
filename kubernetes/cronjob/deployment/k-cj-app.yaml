@@ -1,0 +1,35 @@
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  name: cj-sample-c
+spec:
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: cj-sample-c
+    spec:
+      # TODO figure out how to use the API version "batch/v1"
+      # https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/#concurrency-policy
+      # concurrencyPolicy: Forbid
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - image: cj-sample-i:latest
+            name: cj-sample-c
+            # this policy is set to "IfNotPresent" because we use
+            # Minikube locally on our machine based on the sync between
+            # the Minikube Docker service and the local machine Docker service (your laptop)
+            #
+            # if this was a cloud deployment with a private Docker registry
+            # then this probably would probably be "Always"
+            # (always pull the image before running the Docker container)
+            imagePullPolicy: IfNotPresent # Never # IfNotPresent
+          restartPolicy: OnFailure
+  schedule: '*/2 * * * *' # every 2 minutes
+  successfulJobsHistoryLimit: 2 # retained pods
+  failedJobsHistoryLimit: 2 # retained pods
+status: {}
