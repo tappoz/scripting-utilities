@@ -1,3 +1,8 @@
+#
+# The source code is at:
+# https://github.com/tappoz/scripting-utilities/tree/master/kubernetes/cronjob
+#
+
 # --------------------------------------------------------- #
 # Install Kubectl                                           #
 # Install and configure Minikube (local Kubernetes cluster) #
