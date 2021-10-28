@@ -29,7 +29,9 @@ spec:
             # (always pull the image before running the Docker container)
             imagePullPolicy: IfNotPresent # Never # IfNotPresent
           restartPolicy: OnFailure
-  schedule: '*/2 * * * *' # every 2 minutes
+  # https://crontab.guru/#*/2_*_*_*_*
+  # at every 2nd minute (30 times per hour)
+  schedule: '*/2 * * * *'
   successfulJobsHistoryLimit: 2 # retained pods
   failedJobsHistoryLimit: 2 # retained pods
 status: {}
