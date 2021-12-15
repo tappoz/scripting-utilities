@@ -20,6 +20,10 @@ Then we'll introduce proper integration tests, linters,
 dockerize all the moving parts, and finally introduce them 
 to a local Kubernetes cluster with Minikube.
 
+The source code can be found on GitHub at:
+
+https://github.com/tappoz/scripting-utilities/tree/master/python-flask-tornado-postgres-docker-kubernetes-rest-api
+
 # Flask REST API in Python part 1/6: how to write the HTTP server
 
 Let's write the Python code to serve HTTP GET (and later HTTP POST) endpoints,
