@@ -1,21 +1,13 @@
 # Scripting utilities
 
-This project gathers all the scripts I found useful recalling from the command line for my daily tasks.
+This project was intended as a place to gather all the scripts I found useful recalling from the command line for my daily tasks.
+They might be:
 
-They might be `bash` / `awk` scripts, `python` scripts (or `jupyter` notebooks), `javascript` / `Node.js` scripts.
+- `bash` / `awk` scripts,
+- `python` scripts (or `jupyter` notebooks) e.g. bulk-email dispatch,
+- `javascript` / `Node.js` scripts,
+- snippets on Go (Golang), Java etc.
 
-There are also some `ansible` scripts to configure Linux Debian machines.
+It evolved into a place where I also store some DevOps solutions based on Ansible, Terraform (AWS, Azure, GCP, UpCloud etc.), Docker and Kubernetes, Penetration Testing (CVE - Common Vulnerabilities and Exposures), SQL Injection, Vulnerability Scanning etc.
 
-I usually save these scripts in my home bin folder (`~/bin`) making sure that folder is in the `$PATH` so then I can recall these scripts from every folder
-in the file system.
-
-## Updating your `$PATH`
-On your home folder (`/home/YOUR_USER_NAME` or simpy `~`)  amend the file `.bashrc` file with something like this:
-```sh
-PATH=${HOME}/bin:${PATH}
-```
-## Making one of the scripts executable
-In order to be sure the scripts are executable you need to run the following command:
-```shell
-$ chmod +x <script-name>
-```
+It slowly ended up into a place where I store most of my sample projects, MVP (Minimum Viable Products) or PoC (Proof of Concepts).

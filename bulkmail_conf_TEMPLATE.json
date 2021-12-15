@@ -1,7 +1,0 @@
-{
-  "gmail_user": "foo",
-  "gmail_password": "bar",
-  "csv_filename": "bulkmail_list_TEMPLATE.csv",
-  "email_msg_template": "bulkmail_TEMPLATE.txt",
-  "cc_email_address": "xyz@abc.def"
-}
