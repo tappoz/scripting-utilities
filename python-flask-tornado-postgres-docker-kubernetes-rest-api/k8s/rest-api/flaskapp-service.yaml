@@ -1,0 +1,14 @@
+---  # yamllint disable-line rule:new-lines
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaskapp-service
+  # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
+  namespace: restapp
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5000
+    targetPort: 5000
+  selector:
+    app: flaskapp-c

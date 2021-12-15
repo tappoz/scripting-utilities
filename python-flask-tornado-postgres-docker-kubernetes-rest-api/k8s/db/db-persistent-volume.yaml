@@ -1,0 +1,38 @@
+# Docs
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+  labels:
+    type: local
+  # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
+  namespace: restapp
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/mnt/pg-data"
+# to check the persistent volume storage:
+# `minikube ssh`
+# then: `sudo ls -lah /mnt/pg-data/`
+#
+# TODO schedule the DB backup with Velero: https://velero.io/docs/v1.7/backup-reference/
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
+  namespace: restapp
+spec:
+  storageClassName: manual
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

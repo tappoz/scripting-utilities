@@ -1,0 +1,6 @@
+# for the App code base (HTTP server)
+flask==2.0.2
+tornado==6.1
+psycopg2-binary==2.9.2
+# for the HTTP integration tests
+requests==2.22.0

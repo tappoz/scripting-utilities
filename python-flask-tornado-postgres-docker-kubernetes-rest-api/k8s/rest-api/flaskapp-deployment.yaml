@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaskapp-c
+  # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
+  namespace: restapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flaskapp-c
+  template:
+    metadata:
+      labels:
+        app: flaskapp-c
+    spec:
+      containers:
+        - name: flaskapp-c
+          image: flaskapp-i:latest
+          # this policy is set to "IfNotPresent" because we use
+          # Minikube locally on our machine based on the sync between
+          # the Minikube Docker service and the local machine Docker service (your laptop)
+          #
+          # if this was a cloud deployment with a private Docker registry
+          # then this probably would probably be "Always"
+          # (always pull the image before running the Docker container)
+          imagePullPolicy: IfNotPresent # Never # IfNotPresent
+          ports:
+            - name: flaskapp-port
+              containerPort: 5000
+              protocol: TCP
+          # TODO read https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services
+          env:
+            - name: DB_HOST
+              value: db-service.restapp.svc.cluster.local

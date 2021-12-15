@@ -1,0 +1,29 @@
+# This is used to validate (lint) Kubernetes YAML files:
+checks:
+  # https://polaris.docs.fairwinds.com/checks/security/
+  hostIPCSet: danger # Fails when hostIPC attribute is configured.
+  hostPIDSet: danger # Fails when hostPID attribute is configured.
+  notReadOnlyRootFilesystem: warning # Fails when securityContext.readOnlyRootFilesystem is not true.
+  # customized the following one:
+  privilegeEscalationAllowed: ignore # danger # Fails when securityContext.allowPrivilegeEscalation is true.
+  runAsRootAllowed: warning # Fails when securityContext.runAsNonRoot is not true.
+  runAsPrivileged: danger # Fails when securityContext.privileged is true.
+  insecureCapabilities: warning # Fails when securityContext.capabilities includes one of the capabilities listed here(opens new window)
+  dangerousCapabilities: danger # Fails when securityContext.capabilities includes one of the capabilities listed here(opens new window)
+  hostNetworkSet: warning # Fails when hostNetwork attribute is configured.
+  hostPortSet: warning # Fails when hostPort attribute is configured.
+  tlsSettingsMissing: warning # Fails when an Ingress lacks TLS settings.
+  # https://polaris.docs.fairwinds.com/checks/efficiency/
+  cpuRequestsMissing: warning # Fails when resources.requests.cpu attribute is not configured.
+  memoryRequestsMissing: warning # Fails when resources.requests.memory attribute is not configured.
+  cpuLimitsMissing: warning # Fails when resources.limits.cpu attribute is not configured.
+  memoryLimitsMissing: warning # Fails when resources.limits.memory attribute is not configured.
+  # https://polaris.docs.fairwinds.com/checks/reliability/
+  readinessProbeMissing: warning # Fails when a readiness probe is not configured for a pod.
+  livenessProbeMissing: warning # Fails when a liveness probe is not configured for a pod.
+  # customized the following one:
+  tagNotSpecified: ignore # danger # Fails when an image tag is either not specified or latest.
+  pullPolicyNotAlways: warning # Fails when an image pull policy is not always.
+  priorityClassNotSet: ignore # Fails when a priorityClassName is not set for a pod.
+  multipleReplicasForDeployment: ignore # Fails when there is only one replica for a deployment.
+  missingPodDisruptionBudget: ignore

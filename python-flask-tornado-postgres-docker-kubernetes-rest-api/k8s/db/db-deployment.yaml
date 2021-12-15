@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-c
+  # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-organizing-with-namespaces
+  namespace: restapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-c
+  template:
+    metadata:
+      labels:
+        app: db-c
+    spec:
+      containers:
+        - name: db-c
+          image: postgres:12.6-alpine
+          # this policy is set to "IfNotPresent" because we use
+          # Minikube locally on our machine based on the sync between
+          # the Minikube Docker service and the local machine Docker service (your laptop)
+          #
+          # if this was a cloud deployment with a private Docker registry
+          # then this probably would probably be "Always"
+          # (always pull the image before running the Docker container)
+          imagePullPolicy: IfNotPresent # Never # IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
