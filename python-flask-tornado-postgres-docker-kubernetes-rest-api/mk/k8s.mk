@@ -76,9 +76,9 @@ k8s-configure-db:
 k8s-logs:
 	$(call log_this,"Showing the logs for the Kubernetes deployments")
 	for K_DEPLOYMENT in $(shell kubectl get pods --namespace $(K8S_NAMESPACE) | grep -v NAME | awk '{print $$1}'); do \
-		echo "\nBEGIN logs for $$K_DEPLOYMENT:\n"; \
+		echo "$(YEL)\nBEGIN logs for $(RED)$$K_DEPLOYMENT\n$(NC)"; \
 		kubectl logs $$K_DEPLOYMENT --namespace $(K8S_NAMESPACE); \
-		echo "\nEND logs for $$K_DEPLOYMENT:\n"; \
+		echo "$(YEL)\nEND logs for $(RED)$$K_DEPLOYMENT\n$(NC)"; \
 	done;
 	$(call log_this,"DONE Showing the logs for the Kubernetes deployments")
 

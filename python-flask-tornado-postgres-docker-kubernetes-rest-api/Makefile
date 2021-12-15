@@ -47,4 +47,5 @@ k8s-ceremony:
 	$(MAKE) k8s-status
 	$(MAKE) k8s-integration-test-http
 	sleep 2
+	$(MAKE) k8s-logs
 	$(MAKE) k8s-delete
