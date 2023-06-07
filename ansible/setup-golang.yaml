@@ -2,41 +2,67 @@
 # ansible-playbook setup-golang.yaml -v -i "localhost," -v --ask-become-pass --connection=local --extra-vars "ansible_user=<MYUSERNAME>
 # ansible-playbook setup-golang.yaml -v  --ask-become-pass --extra-vars "ansible_user=<MYUSERNAME> ansible_ssh_pass=<MYPASSWD>"
 # ansible-playbook setup-golang.yaml -v -i MY_HOST_IP_ADDRESS, --extra-vars "ansible_user=<USERNAME>" --key-file "~/.ssh/my_key"
-
+#
+# for a DRY RUN: `--check`
+#
 - name: Make sure Go is installed
   hosts: localhost
   become: yes
   vars:
-    requested_go_v:  "{{version | default('1.17.2')}}"
+    go_version:  "1.20.5"
     go_installation_path: /usr/local
+    # https://github.com/golangci/golangci-lint/releases
+    golangcilint_version: "1.53.2"
+    # https://github.com/gotestyourself/gotestsum/releases
+    gotestsum_version: "1.10.0"
   tasks:
+  - name: Make sure path {{go_installation_path}}/go exists
+    file:
+      path: "{{go_installation_path}}/go"
+      state: directory
+      mode: '0755'
   - name: Checking the installed Go version
-    shell: /usr/local/go/bin/go version | awk '{print $3}' | sed 's/go//'
+    shell: "{{go_installation_path}}/go/bin/go version | awk '{print $3}' | sed 's/go//'"
     register: current_v
     changed_when: false
   - name: Compare the installed version to the requested version
     debug:
-      msg: Installed = {{current_v.stdout}}, Requested = {{requested_go_v}}
+      msg: Installed = {{current_v.stdout}}, Requested = {{go_version}}
   # - name: Checks on versions match/mismatch
   #   block:
   #     - name: Check if an upgrade is needed
   #       debug:
   #         msg: "nothing to upgrade, ending play"
   #     - meta: end_play
-  #   when: current_v.stdout == requested_go_v
+  #   when: current_v.stdout == go_version
+  #
+  # https://go.dev/doc/install
+  # rm -rf /usr/local/go
   - name: Cleaun up the old Go installation
     file:
       path: '{{go_installation_path}}/go'
       state: absent
   - name: Download & extract (install) Go
     unarchive:
-      src: https://dl.google.com/go/go{{requested_go_v}}.linux-amd64.tar.gz
+      src: https://dl.google.com/go/go{{go_version}}.linux-amd64.tar.gz
       dest: '{{go_installation_path}}'
       remote_src: yes
   - name: Make sure Go is configured
     blockinfile:
-      path: /home/{{ ansible_user }}/.bashrc
+      path: /home/{{ansible_user}}/.bashrc
       backup: yes
-      marker: "# {mark} Golang config"
+      marker: "# {mark} My Golang config"
       block: |
-        export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+        export PATH=$PATH:{{go_installation_path}}/go/bin:$GOPATH/bin
+  - name: Install Golang CI Lint tool
+    unarchive:
+      src: "https://github.com/golangci/golangci-lint/releases/download/v{{golangcilint_version}}/golangci-lint-{{golangcilint_version}}-linux-amd64.tar.gz"
+      dest: /usr/local/bin
+      remote_src: yes
+      extra_opts:
+        - --strip-components=1
+  - name: Install Golang Test Sum tool
+    unarchive:
+      src: "https://github.com/gotestyourself/gotestsum/releases/download/v{{gotestsum_version}}/gotestsum_{{gotestsum_version}}_linux_amd64.tar.gz"
+      dest: /usr/local/bin
+      remote_src: yes
