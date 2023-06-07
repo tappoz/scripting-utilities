@@ -1,0 +1,83 @@
+---
+# make sure ansible is installed on your laptop
+# https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu
+# 
+# sudo apt update
+# sudo apt install software-properties-common
+# sudo add-apt-repository --yes --update ppa:ansible/ansible
+# sudo apt install ansible
+#
+# check ansible works correctly:
+# - ansible --version
+# - ansible-inventory --list
+# - ansible-config list
+
+# ansible-playbook setup-docker-ubuntu-22.yaml -v -i "localhost," -v --ask-become-pass --connection=local --extra-vars "ansible_user=<MYUSERNAME>"
+# for a DRY RUN: `--check`
+#
+# https://docs.docker.com/engine/install/ubuntu/
+- name: Make sure docker is installed and configured
+  hosts: localhost
+  become: yes
+  vars:
+    requested_docker_compose_v:  "{{version | default('2.18.1')}}"
+  tasks:
+  - name: Install packages to allow apt to use a repository over HTTPS
+    apt:
+      pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg2
+        - python3
+        - python3-pip
+        - python3-setuptools
+        - software-properties-common
+      state: present
+      update_cache: yes
+  # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  # or
+  # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  # sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  - name: Fetching Docker GPG key
+    apt_key:
+      url: "https://download.docker.com/linux/{{ansible_distribution|lower}}/gpg"
+      state: present
+  # sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  # sudo apt-get update -y
+  - name: Adding Docker sources list
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/{{ansible_distribution|lower}} {{ansible_distribution_release}} stable
+      state: present
+      filename: docker
+      update_cache: yes
+  # sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - name: Installing Docker CE
+    apt:
+      pkg:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+      state:
+        present
+  # TODO sudo apt autoremove --purge
+
+  # docker-compose
+  # https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04
+  # mkdir -p ~/.docker/cli-plugins/
+  - name: Make sure docker directory is there
+    file: 
+      path: "/home/{{ansible_user}}/.docker/cli-plugins/"
+      state: directory
+      owner: "{{ansible_user}}"
+  # https://github.com/docker/compose/releases/download/v{{requested_docker_compose_v}}/docker-compose-linux-x86_64
+  # curl -SL https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+  # chmod +x ~/.docker/cli-plugins/docker-compose
+  - name: Download docker-compose
+    ansible.builtin.get_url:
+      url: "https://github.com/docker/compose/releases/download/v{{requested_docker_compose_v}}/docker-compose-linux-x86_64"
+      dest: "/home/{{ansible_user}}/.docker/cli-plugins/"
+      mode: +x
+  # check this works: `docker compose version`
