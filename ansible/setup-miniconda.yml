@@ -1,0 +1,25 @@
+# ansible-playbook setup-miniconda.yml -v -i "localhost," -v --connection=local --extra-vars "ansible_user=<MYUSERNAME>"
+# for a DRY RUN: `--check`
+#
+---
+- name: Make sure Miniconda is installed and configured
+  hosts: localhost
+  become: no
+  vars:
+    miniconda_version: py310_23.3.1-0
+    miniconda_installer_checksum: sha256:aef279d6baea7f67940f16aad17ebe5f6aac97487c7c03466ff01f4819e5a651
+    miniconda_installation_path: "/home/{{ansible_user}}/conda"
+  tasks:
+  # https://docs.conda.io/en/latest/miniconda_hashes.html
+  - name: Download Miniconda3 installer
+    get_url:
+      url: "https://repo.anaconda.com/miniconda/Miniconda3-{{miniconda_version}}-Linux-x86_64.sh"
+      dest: /tmp
+      timeout: 120
+      checksum: "{{miniconda_installer_checksum}}"
+      mode: 0755
+  - name: Install Miniconda3
+    command: "/tmp/Miniconda3-{{miniconda_version}}-Linux-x86_64.sh -b -p {{miniconda_installation_path}}"
+  - name: Run conda init
+    shell: |
+      {{miniconda_installation_path}}/bin/conda init
