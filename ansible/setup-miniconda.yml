@@ -1,6 +1,11 @@
 # ansible-playbook setup-miniconda.yml -v -i "localhost," -v --connection=local --extra-vars "ansible_user=<MYUSERNAME>"
 # for a DRY RUN: `--check`
 #
+# source ~/.bashrc
+# conda env list
+# conda create --name mypy310 python=3.10
+# conda activate mypy310
+# conda deactivate
 ---
 - name: Make sure Miniconda is installed and configured
   hosts: localhost
