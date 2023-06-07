@@ -1,0 +1,36 @@
+# ansible-playbook setup-nvm-node.yml -v -i "localhost," -v --connection=local --extra-vars "ansible_user=<MYUSERNAME>"
+# for a DRY RUN: `--check`
+#
+# nvm ls
+# nvm install 18
+# nvm use --lts
+---
+- name: Make sure NVM and NodeJS are installed and configured
+  hosts: localhost
+  become: no
+  vars:
+    # https://github.com/nvm-sh/nvm#installing-and-updating
+    nvm_version: v0.39.3
+    # https://nodejs.dev/en/about/releases/
+    node_version: 18
+    nvm_dir: "{{ansible_env.HOME}}/.nvm"
+  tasks:
+  - name: Create .nvm directory
+    file:
+      path: "{{nvm_dir}}"
+      state: directory
+      mode: '0755'
+  - name: Download nvm (node version manager) version {{nvm_version}}
+    get_url:
+      url: "https://raw.githubusercontent.com/creationix/nvm/{{nvm_version}}/install.sh"
+      dest: /tmp
+  - name: Install nvm
+    command: /bin/bash /tmp/install.sh
+    args:
+      creates: "/home/{{ansible_user}}/.nvm/nvm.sh"
+  - name: "Install NodeJS version {{node_version}}"
+    shell: >-
+      export NVM_DIR="$HOME/.nvm" && \
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && \
+      nvm install "{{node_version}}"
