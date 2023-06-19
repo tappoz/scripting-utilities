@@ -81,3 +81,12 @@
       dest: "/home/{{ansible_user}}/.docker/cli-plugins/"
       mode: +x
   # check this works: `docker compose version`
+  # the following group/user is to make sure the docker client does not need sudo
+  - group:
+      name: docker
+      state: present
+  - user:
+      name: "{{ ansible_user }}"
+      group: docker
+  # NOW either logout/login again with `ansible_user` to make the user/group changes effective,
+  # otherwise run this command from the terminal: `exec su -l $USER`
