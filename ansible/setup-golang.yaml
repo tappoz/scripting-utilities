@@ -9,7 +9,7 @@
   hosts: localhost
   become: yes
   vars:
-    go_version: "1.20.5" # "1.20.7" # "1.21.0"
+    go_version: "1.21.0" # "1.20.5" # "1.20.7" # "1.21.0"
     go_installation_path: /usr/local
     # https://github.com/golangci/golangci-lint/releases
     golangcilint_version: "1.53.2"
