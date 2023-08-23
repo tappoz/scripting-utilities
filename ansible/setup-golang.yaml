@@ -15,6 +15,8 @@
     golangcilint_version: "1.53.2"
     # https://github.com/gotestyourself/gotestsum/releases
     gotestsum_version: "1.10.0"
+    # https://github.com/securego/gosec
+    gosec_version: "2.17.0"
   tasks:
   - name: Make sure path {{go_installation_path}}/go exists
     file:
@@ -64,5 +66,10 @@
   - name: Install Golang Test Sum tool
     unarchive:
       src: "https://github.com/gotestyourself/gotestsum/releases/download/v{{gotestsum_version}}/gotestsum_{{gotestsum_version}}_linux_amd64.tar.gz"
+      dest: /usr/local/bin
+      remote_src: yes
+  - name: Install Gosec tool
+    unarchive:
+      src: "https://github.com/securego/gosec/releases/download/v{{gosec_version}}/gosec_{{gosec_version}}_linux_amd64.tar.gz"
       dest: /usr/local/bin
       remote_src: yes
