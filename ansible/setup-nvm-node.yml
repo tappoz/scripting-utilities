@@ -10,9 +10,9 @@
   become: no
   vars:
     # https://github.com/nvm-sh/nvm#installing-and-updating
-    nvm_version: v0.39.3
+    nvm_version: v0.39.6
     # https://nodejs.dev/en/about/releases/
-    node_version: 18
+    node_version: 20
     nvm_dir: "{{ansible_env.HOME}}/.nvm"
   tasks:
   - name: Create .nvm directory
